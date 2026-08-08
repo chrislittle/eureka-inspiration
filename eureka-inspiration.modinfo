@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod id="eureka-inspiration" version="1" xmlns="ModInfo">
+	<Properties>
+		<Name>Eureka &amp; Inspiration</Name>
+		<Description>Civ 6-style boosts for every base tech and civic. Each node has a thematic deed; completing it fires a Eureka! or Inspiration popup and pre-pays a share of the node's research (10-40%, set at game creation). All three Ages: Antiquity, Exploration and Modern.</Description>
+		<Authors>Chris</Authors>
+		<Package>Mod</Package>
+	</Properties>
+	<Dependencies>
+		<Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME"/>
+	</Dependencies>
+	<ActionCriteria>
+		<Criteria id="always">
+			<AlwaysMet/>
+		</Criteria>
+		<Criteria id="antiquity">
+			<AgeInUse>AGE_ANTIQUITY</AgeInUse>
+		</Criteria>
+		<Criteria id="exploration">
+			<AgeInUse>AGE_EXPLORATION</AgeInUse>
+		</Criteria>
+		<Criteria id="modern">
+			<AgeInUse>AGE_MODERN</AgeInUse>
+		</Criteria>
+		<!-- BOOST SIZE. ⚠ THE VALUE MUST BE A STRING - ConfigurationValueMatches matches a string or
+		     a boolean and NEVER a number. Measured 2026-08-06 across six variants in one game
+		     (eni-cfg-litmus): numeric failed at Hash 0, at Hash 1, and as a primitive uint; string and
+		     bool both matched. Domain and Hash are irrelevant; the stored TYPE is everything.
+		     The original selector used bare numeric DomainValues, so it never matched and every game
+		     since release ran at 40 percent regardless of what the player picked.
+		     An earlier attempt blamed AgeInUse being combined with ConfigurationValueMatches. That was
+		     WRONG - the numeric value was always the cause. Do not re-derive it.
+		     There is no boost-40 criteria: 40 is what the base *-boosts-40.xml files already encode,
+		     so the default needs no override group. -->
+		<Criteria id="boost-10">
+			<ConfigurationValueMatches>
+				<Group>Game</Group>
+				<ConfigurationId>EniBoostLevel</ConfigurationId>
+				<Value>ENI_BOOST_10</Value>
+			</ConfigurationValueMatches>
+		</Criteria>
+		<Criteria id="boost-20">
+			<ConfigurationValueMatches>
+				<Group>Game</Group>
+				<ConfigurationId>EniBoostLevel</ConfigurationId>
+				<Value>ENI_BOOST_20</Value>
+			</ConfigurationValueMatches>
+		</Criteria>
+		<Criteria id="boost-30">
+			<ConfigurationValueMatches>
+				<Group>Game</Group>
+				<ConfigurationId>EniBoostLevel</ConfigurationId>
+				<Value>ENI_BOOST_30</Value>
+			</ConfigurationValueMatches>
+		</Criteria>
+	</ActionCriteria>
+	<ActionGroups>
+		<!-- LOAD ORDER IS LOAD-BEARING. The boost-size sets are <Update> patches against
+		     ModifierArguments rows that the *-boosts-40.xml base files create, so every per-Age
+		     base group (eni-aq, eni-ex, eni-mo) MUST be declared before eni-b10/b20/b30.
+		     Reversed, the <Where> matches nothing and applies silently - the player picks 10
+		     percent and gets 40 with no error anywhere. -->
+		<ActionGroup id="eni-shell" scope="shell" criteria="always">
+			<Actions>
+				<UpdateDatabase>
+					<Item>config/setup.xml</Item>
+				</UpdateDatabase>
+				<UpdateText>
+					<Item>text/setup-text.xml</Item>
+				</UpdateText>
+			</Actions>
+		</ActionGroup>
+		<ActionGroup id="eni-aq" scope="game" criteria="antiquity">
+			<Actions>
+				<UpdateDatabase>
+					<Item>data/aq-boosts-40.xml</Item>
+					<Item>data/aq-deeds-gameeffects.xml</Item>
+					<Item>data/aq-deeds-bind.xml</Item>
+					<Item>data/aq-stories.xml</Item>
+				</UpdateDatabase>
+				<UpdateText>
+					<Item>text/aq-text.xml</Item>
+				</UpdateText>
+			</Actions>
+		</ActionGroup>
+		<ActionGroup id="eni-ex" scope="game" criteria="exploration">
+			<Actions>
+				<UpdateDatabase>
+					<Item>data/ex-boosts-40.xml</Item>
+					<Item>data/ex-deeds-gameeffects.xml</Item>
+					<Item>data/ex-deeds-bind.xml</Item>
+				</UpdateDatabase>
+				<UpdateText>
+					<Item>text/ex-text.xml</Item>
+				</UpdateText>
+			</Actions>
+		</ActionGroup>
+		<ActionGroup id="eni-mo" scope="game" criteria="modern">
+			<Actions>
+				<UpdateDatabase>
+					<Item>data/mo-boosts-40.xml</Item>
+					<Item>data/mo-deeds-gameeffects.xml</Item>
+					<Item>data/mo-deeds-bind.xml</Item>
+					<!-- Absolutism only: a hidden narrative story whose POLLED RequirementSetId
+					     carries the deed. Loads after the GameEffects that define the set and the
+					     reward modifiers it attaches. -->
+					<Item>data/mo-stories.xml</Item>
+				</UpdateDatabase>
+				<UpdateText>
+					<Item>text/mo-text.xml</Item>
+				</UpdateText>
+			</Actions>
+		</ActionGroup>
+		<ActionGroup id="eni-ui" scope="game" criteria="always">
+			<Actions>
+				<UIScripts>
+					<Item>ui/eni-treeux.js</Item>
+					<Item>ui/eni-dashboard.js</Item>
+				</UIScripts>
+			</Actions>
+		</ActionGroup>
+		<!-- Exactly one of these can ever be active - the cycler holds a single value - so their
+		     relative order does not matter. What DOES matter is that all three come after the per-Age
+		     base groups above; see the load-order note at the top of ActionGroups. -->
+		<ActionGroup id="eni-b30" scope="game" criteria="boost-30">
+			<Actions>
+				<UpdateDatabase>
+					<Item>data/aq-boosts-set-30.xml</Item>
+					<Item>data/ex-boosts-set-30.xml</Item>
+					<Item>data/mo-boosts-set-30.xml</Item>
+				</UpdateDatabase>
+			</Actions>
+		</ActionGroup>
+		<ActionGroup id="eni-b20" scope="game" criteria="boost-20">
+			<Actions>
+				<UpdateDatabase>
+					<Item>data/aq-boosts-set-20.xml</Item>
+					<Item>data/ex-boosts-set-20.xml</Item>
+					<Item>data/mo-boosts-set-20.xml</Item>
+				</UpdateDatabase>
+			</Actions>
+		</ActionGroup>
+		<ActionGroup id="eni-b10" scope="game" criteria="boost-10">
+			<Actions>
+				<UpdateDatabase>
+					<Item>data/aq-boosts-set-10.xml</Item>
+					<Item>data/ex-boosts-set-10.xml</Item>
+					<Item>data/mo-boosts-set-10.xml</Item>
+				</UpdateDatabase>
+			</Actions>
+		</ActionGroup>
+	</ActionGroups>
+</Mod>

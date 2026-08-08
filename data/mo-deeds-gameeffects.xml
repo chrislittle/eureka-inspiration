@@ -1,0 +1,1734 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameEffects xmlns="GameEffects">
+	<!-- MODERN deed engine: all 25 boostable nodes (13 techs, 6 main civics, 6 ideology branches).
+	     Same proven shape as Antiquity and Exploration - a marker + a boost per deed, both carrying
+	     identical inline SubjectRequirements, attached to every major player by a per-deed wrapper,
+	     and switched on by the GameModifiers rows in mo-deeds-bind.xml.
+
+	     Scope notes for this Age:
+	       * The three entry-tier techs (Academics, Steam Engine, Military Science) and the three
+	         entry-tier civics (Modernization, Natural History, Social Question) are deliberately
+	         unboosted - they are researched in the opening turns, so no deed could be earned in
+	         time. Same rule the earlier Ages use.
+	       * The three IDEOLOGY ROOTS (Democracy, Fascism, Communism) carry CanBoost="false" in the
+	         base data and cannot take a boost at all. Only the six branch nodes below them can.
+	       * Modern HAS an advanced start, so every event-counting deed carries AfterInit="True",
+	         which scopes the count to THIS Age and keeps a carried empire from pre-satisfying it.
+	       * Commander state: an advanced start grants an ARMY Commander with 3 free promotions. An
+	         Army Commendation needs 4 promotions in one tree, so OnlyCommendations is safe here
+	         (Chris, 2026-08-03). Naval, Squadron and Aerodrome commanders cannot be held at all at
+	         a Modern advanced start.
+	       * No deed rests on civ-specific content. Where a unique unit could stand in for a base
+	         one, CountReplacements="True" does the work instead of naming the unique. -->
+
+	<!-- Story activation gate: trivially true for the whole Age. Checked ONCE at story init and
+	     silently archived if false, so it must never carry the deed itself. -->
+	<RequirementSet id="REQSET_ENI_MO_ELIGIBLE">
+		<Requirement type="REQUIREMENT_GAME_AGE_TYPE_MATCH">
+			<Argument name="AgeType">AGE_MODERN</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- ============ shared sub-sets (city / plot scoped) ============ -->
+
+	<!-- Urbanization: a plot holding a City Park whose Appeal is at the higher of the two engine
+	     thresholds. UseAppealDoubleHappinessThreshold IS Breathtaking; UseAppealHappinessThreshold
+	     is Charming. City Park has NO ProgressionTreeNodeUnlocks row, so it is buildable from the
+	     start of the Age and cannot be circular with Urbanization. -->
+	<!-- Industrialization: a Factory Town working 3 assigned Resources. Factory Town is unlocked by
+	     an always-on trait modifier on any town holding a RESOURCECLASS_FACTORY resource - there is
+	     no tech gate on it, so this cannot be circular. The BUILDING_FACTORY (which Industrialization
+	     does NOT unlock either - that is Mass Production) is not involved. -->
+	<RequirementSet id="SUBREQSET_ENI_MO_FACTORY_TOWN">
+		<Requirement type="REQUIREMENT_CITY_HAS_PROJECT">
+			<Argument name="ProjectType">PROJECT_TOWN_FACTORY</Argument>
+		</Requirement>
+		<Requirement type="REQUIREMENT_CITY_HAS_X_RESOURCES_ASSIGNED">
+			<Argument name="Amount">3</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- Mass Production: a settlement on the rail network. Two of them is the deed. -->
+	<RequirementSet id="SUBREQSET_ENI_MO_RAILED">
+		<Requirement type="REQUIREMENT_CITY_CONNECTED_BY_RAIL"/>
+	</RequirementSet>
+
+	<!-- Computation: the research campus - Laboratory and Schoolhouse finished on ONE tile.
+	     Laboratory comes from Electricity, Schoolhouse from Academics, so both sit below
+	     Computation and neither is its own unlock (that is the Stock Exchange). Same two-buildings-
+	     on-a-plot shape Antiquity's Iron Working uses, proven in-game 2026-08-02. -->
+	<RequirementSet id="SUBREQSET_ENI_MO_CAMPUS">
+		<Requirement type="REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE">
+			<Argument name="ConstructibleType">BUILDING_LABORATORY</Argument>
+		</Requirement>
+		<Requirement type="REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE">
+			<Argument name="ConstructibleType">BUILDING_SCHOOLHOUSE</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- Rocketry: the launch complex - an Aerodrome AND a Laboratory in the CAPITAL. The Aerodrome
+	     is FULL_TILE so the two can never share a tile; this is a settlement-level ask, not a
+	     co-location. Aerodrome comes from Flight, Laboratory from Electricity - both below Rocketry. -->
+	<RequirementSet id="SUBREQSET_ENI_MO_LAUNCH_COMPLEX">
+		<Requirement type="REQUIREMENT_CITY_IS_CAPITAL"/>
+		<Requirement type="REQUIREMENT_CITY_HAS_BUILDING">
+			<Argument name="BuildingType">BUILDING_AIRFIELD</Argument>
+		</Requirement>
+		<Requirement type="REQUIREMENT_CITY_HAS_BUILDING">
+			<Argument name="BuildingType">BUILDING_LABORATORY</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- Capitalism: a Stock Exchange adjacent to BOTH a Port and a Rail Station. Two separate
+	     adjacency requirements rather than one AdjacentBuildingTypes list, because ListCount ships
+	     only ever as 1 - a ListCount of 2 has no precedent anywhere in the game. A settlement can
+	     hold only one Stock Exchange, so the two requirements cannot be satisfied by two different
+	     buildings. Port is water-sited (TERRAIN_COAST / navigable river) and the Stock Exchange is
+	     land, which is exactly why this is an ADJACENCY and not a shared tile. -->
+	<RequirementSet id="SUBREQSET_ENI_MO_EXCHANGE">
+		<Requirement type="REQUIREMENT_BUILDING_IS_ADJACENT_TO_X">
+			<Argument name="BuildingType">BUILDING_STOCK_EXCHANGE</Argument>
+			<Argument name="AdjacentBuildingTypes">BUILDING_PORT</Argument>
+			<Argument name="ListCount">1</Argument>
+		</Requirement>
+		<Requirement type="REQUIREMENT_BUILDING_IS_ADJACENT_TO_X">
+			<Argument name="BuildingType">BUILDING_STOCK_EXCHANGE</Argument>
+			<Argument name="AdjacentBuildingTypes">BUILDING_RAIL_STATION</Argument>
+			<Argument name="ListCount">1</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- Hegemony: an Open-Air Museum plot. The improvement is a CITY_STATE_UNIQUE_IMPROVEMENT, so
+	     three of them means taking the culture of a city-state you are Suzerain of and then
+	     actually building with it - a gateway, not a build count. -->
+	<RequirementSet id="SUBREQSET_ENI_MO_OPEN_AIR">
+		<Requirement type="REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE">
+			<Argument name="ConstructibleType">IMPROVEMENT_OPEN_AIR_MUSEUM</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- Militarism: "every settlement is a Town, or a City that has Defensive Fortifications" -->
+	<RequirementSet id="SUBREQSET_ENI_MO_FORTIFIED" type="REQUIREMENTSET_TEST_ANY">
+		<Requirement type="REQUIREMENT_CITY_IS_TOWN"/>
+		<Requirement type="REQUIREMENT_CITY_HAS_BUILDING">
+			<Argument name="BuildingType">BUILDING_DEFENSIVE_FORTIFICATIONS</Argument>
+		</Requirement>
+	</RequirementSet>
+	<!-- the guard: at least one real fortified City, so an all-Town empire cannot pass vacuously -->
+	<RequirementSet id="SUBREQSET_ENI_MO_FORTIFIEDCITY">
+		<Requirement type="REQUIREMENT_CITY_IS_CITY"/>
+		<Requirement type="REQUIREMENT_CITY_HAS_BUILDING">
+			<Argument name="BuildingType">BUILDING_DEFENSIVE_FORTIFICATIONS</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- Socialism: "every settlement is a Town, or a City that has a Tenement" -->
+	<RequirementSet id="SUBREQSET_ENI_MO_HOUSED" type="REQUIREMENTSET_TEST_ANY">
+		<Requirement type="REQUIREMENT_CITY_IS_TOWN"/>
+		<Requirement type="REQUIREMENT_CITY_HAS_BUILDING">
+			<Argument name="BuildingType">BUILDING_TENEMENT</Argument>
+		</Requirement>
+	</RequirementSet>
+	<!-- the same vacuity guard -->
+	<RequirementSet id="SUBREQSET_ENI_MO_HOUSEDCITY">
+		<Requirement type="REQUIREMENT_CITY_IS_CITY"/>
+		<Requirement type="REQUIREMENT_CITY_HAS_BUILDING">
+			<Argument name="BuildingType">BUILDING_TENEMENT</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- Centralism: "a settlement whose focus feeds the empire" - Farming Town or Fishing Town.
+	     ⚠ REPLACES REQUIREMENT_PLAYER_HAS_X_TOWNS_PRODUCING_PROJECT (2026-08-08). That requirement
+	     names a SINGLE ProjectType and nothing sums across two, so the old two-marker form asked for
+	     5 Farming OR 5 Fishing and read 2 when Chris held 2 of each - max(), not total. Counting the
+	     settlements here instead sums them properly, and a town with no focus matches NEITHER branch,
+	     so an unspecialized town cannot be counted.
+	     REQUIREMENT_CITY_HAS_PROJECT is base-proven on exactly these two ids (Antiquity golden ages,
+	     the Exploration Feudalism node) and COLLECTION_PLAYER_CITIES includes Towns. -->
+	<RequirementSet id="SUBREQSET_ENI_MO_FOOD_TOWN" type="REQUIREMENTSET_TEST_ANY">
+		<Requirement type="REQUIREMENT_CITY_HAS_PROJECT">
+			<Argument name="ProjectType">PROJECT_TOWN_GRANARY</Argument>
+		</Requirement>
+		<Requirement type="REQUIREMENT_CITY_HAS_PROJECT">
+			<Argument name="ProjectType">PROJECT_TOWN_FISHING</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- ============ TECHS ============ -->
+
+	<!-- Electricity: hold 4 Coal or Oil, in any combination. The fuels of generation, and the one
+	     currency the mod has never spent - resource SLOTS, not buildings. CountAllCopies makes four
+	     copies of one fuel count as well as a mix. -->
+	<Modifier id="ENI_MO_MARK_ELECTRICITY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_X_RESOURCES">
+				<Argument name="ResourceType">RESOURCE_COAL,RESOURCE_OIL</Argument>
+				<Argument name="Amount">4</Argument>
+				<Argument name="CountAllCopies">true</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_ELECTRICITY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Urbanization: a City Park on a Breathtaking tile - the Civ 6 Neighborhood idea, sited for
+	     beauty rather than counted. -->
+	<!-- Urbanization: City Parks in 3 settlements.
+	     ⛔ THE ORIGINAL DEED WAS IMPOSSIBLE, not hard - "a City Park on a Breathtaking tile".
+	     Proven in-game 2026-08-06: URBANIZING A TILE DESTROYS ITS APPEAL. Chris built a City Park
+	     on a Breathtaking tile and the plot tooltip afterwards showed NO Appeal line at all, not a
+	     reduced one. REQUIREMENT_PLOT_HAS_APPEAL can therefore never be true on an urban plot, and
+	     the act of building removed the very condition the deed tested. That also explains why
+	     every shipped Appeal payout in the base game is a RURAL tile yield - it is a rule, not a
+	     design preference. Banked to the skill's gameeffects.md.
+	     REJECTED REPLACEMENT, recorded so it is not re-proposed: "grow your Capital to 40 total
+	     Population" via GOSSIP_CITY_POPULATION_HEIGHT_CHANGED01. A Modern ADVANCED START HANDS YOU
+	     A CAPITAL AT 40 ON TURN 1 (Chris) - the deed would be pre-satisfied before the player acted,
+	     and 60 is only one growth spurt further.
+	     Carry-proof without AfterInit for the same reason Feudalism's Medieval Walls are:
+	     BUILDING_CITY_PARK is Age="AGE_MODERN", so no Exploration empire can arrive holding one.
+	     Needs no play test - REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS is proven four times over
+	     in Exploration (Kilns, Armorers, Temples, Taverns). -->
+	<Modifier id="ENI_MO_MARK_URBANIZATION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+				<Argument name="BuildingType">BUILDING_CITY_PARK</Argument>
+				<Argument name="Amount">3</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_URBANIZATION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Combustion: extract an Artifact. A direct Civ 6 boost port ("Excavate an Artifact" fed
+	     that game's engine techs), and the engine ships a dedicated event for it. -->
+	<Modifier id="ENI_MO_MARK_COMBUSTION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_ARTIFACT_EXTRACTED01</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_COMBUSTION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Industrialization: a Factory Town working 3 Resources. Town focus is a commitment, not a
+	     build - the town gives up every other specialisation for it and needs population 7. -->
+	<Modifier id="ENI_MO_MARK_INDUSTRIALIZATION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_FACTORY_TOWN</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_INDUSTRIALIZATION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Radio: run 3 Espionage actions. The broadcast age is the listening age. Filtered on the
+	     ACTION GROUP rather than a single action type, so any espionage play counts. -->
+	<Modifier id="ENI_MO_MARK_RADIO" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_ACTION_STARTED01</Argument>
+				<Argument name="GOSSIP_DIPLOMACY_ACTION_STARTED01">Hash,DiplomacyActionGroup,DIPLOMACY_ACTION_GROUP_ESPIONAGE,Hash,OtherPlayer,Other</Argument>
+				<Argument name="DuplicateCount">3</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_RADIO</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Flight: reveal 90 percent of the map. The aerial survey - and the only part of the idea
+	     that Flight does not itself unlock (aircraft, the Aerodrome and the Squadron Commander all
+	     come FROM this node). ExcludeSharedVis is deliberately NOT set: you cannot unsee what an
+	     ally showed you, and both shipped usages set it False. -->
+	<Modifier id="ENI_MO_MARK_FLIGHT" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<!-- ✅ 100 PROVEN IN PLAY 2026-08-08. Do not lower it back.
+			     90 -> 100 (Chris, 2026-08-06, from play), for TWO reasons at once:
+			     (1) IT DID NOT FIRE AT 93.3%. A FireTuner sweep of every plot read 3176/3404 revealed
+			         and the marker stayed 0. This requirement has only 4 shipped uses and the boolean
+			         casing theory was checked and DISPROVED (base writes both `true` and `True`
+			         freely). 100 is the value BOTH base uses of the percentage form pass - so the
+			         mechanism is fine and only a percentage the base game itself exercises works.
+			         The 2026-08-08 run confirmed it: the deed stayed dark at 99.71% (3394/3404) and
+			         fired the moment the last plot - a mountain at 67,38 - was revealed.
+			     (2) 90 WAS PRE-SATISFIED ANYWAY. A Modern advanced start revealed 93.3% on turn 1,
+			         so the deed asked for nothing - it broke the carry rule regardless of whether it
+			         worked. Only the last few percent of genuinely unexplored map is a real ask.
+			     ⚠ THE COST IS REAL and Chris accepted it knowingly (2026-08-08): "100% is a bit
+			     troublesome. we'll leave it." The tail is a handful of scattered single plots -
+			     mountains, navigable river tiles, polar land - and finding them without a probe is
+			     tedious. The denominator is EVERY plot on the grid, ocean included (3404 on a 74x46
+			     map, verified). Revisit only with a shipped precedent for a lower percentage.
+			     ExcludeSharedVis is stated explicitly because both base uses state it: what an ally
+			     showed you still counts, since you cannot unsee it. -->
+			<Requirement type="REQUIREMENT_PLAYER_PLOTS_REVEALED_ARE_X">
+				<Argument name="PlotsRevealed">100</Argument>
+				<Argument name="PlotsRevealedIsPercentage">True</Argument>
+				<Argument name="ExcludeSharedVis">False</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_FLIGHT</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Mass Production: two settlements on the rail network. -->
+	<Modifier id="ENI_MO_MARK_MASS_PRODUCTION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">2</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_RAILED</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_MASS_PRODUCTION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Computation: Laboratory and Schoolhouse on one tile. -->
+	<Modifier id="ENI_MO_MARK_COMPUTATION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_PLOT_YIELDS</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_CAMPUS</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_COMPUTATION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Mobilization: 3 kills made BY air units. KillingDomainType describes your side; the
+	     separate DomainType field describes the dying unit, which is what Armor uses. -->
+	<Modifier id="ENI_MO_MARK_MOBILIZATION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,KillingDomainType,DOMAIN_AIR</Argument>
+				<Argument name="DuplicateCount">3</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_MOBILIZATION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Armor: defeat an enemy COMMANDER.
+	     ⚠ RE-CUT 2026-08-06. The old deed was "destroy an enemy Air unit", and it was UNEARNABLE in
+	     practice for the same reason Antiquity's ranged-kill Tactics was: THE AI DOES NOT BUILD THE
+	     TARGET. It fields almost no aircraft even at Deity, so a whole Age passes with nothing to
+	     shoot down. The number was never the problem.
+	     THE PRINCIPLE (already carried by Tactics): a deed must not depend on what the AI CHOOSES to
+	     build. A Commander is the opposite - the AI fields them by design and packs units around
+	     them, so the target always exists whatever else it builds.
+	     Thematically it is the breakthrough this 4000-cost tech is about: the armour that reaches
+	     the enemy headquarters. And it stays distinct from every other combat deed in the mod, which
+	     between them read the target's OWNER (Discipline), the KILLER's position (Organized
+	     Military), the TARGET's position (Tactics), the BIOME (Shipbuilding), the TERRITORY
+	     (Gunpowder) and the KILLER's domain (Mobilization). This one reads the target's ROLE.
+	     The filter string is shipped verbatim - "Hash,OtherPlayer,Self,Hash,IsDyingUnitCommander,True"
+	     appears in the base data and the field has 18 uses.
+	     Count is 1: Commanders sit behind the line and are hard to reach. One is an achievement.
+	     ✅ PROVEN IN PLAY 2026-08-08. IsDyingUnitCommander is now a proven filter field for this mod. -->
+	<Modifier id="ENI_MO_MARK_ARMOR" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,IsDyingUnitCommander,True</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_ARMOR</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Aerodynamics: hold one of each first-generation aircraft at the same time - a Biplane, a
+	     Trench Fighter and a Bomber. Six unit slots' worth of air force, which is the whole point:
+	     you learn aerodynamics by flying all three shapes, not by massing one.
+	     CountReplacements="True" on each means Meiji's Zero counts as the Biplane and Prussia's
+	     Stuka as the Trench Fighter, so no civ is locked out and no unique is named. -->
+	<Modifier id="ENI_MO_MARK_AERODYNAMICS" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_UNIT_TYPE">
+				<Argument name="UnitType">UNIT_BIPLANE</Argument>
+				<Argument name="Amount">1</Argument>
+				<Argument name="CountReplacements">True</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_UNIT_TYPE">
+				<Argument name="UnitType">UNIT_TRENCH_FIGHTER</Argument>
+				<Argument name="Amount">1</Argument>
+				<Argument name="CountReplacements">True</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_UNIT_TYPE">
+				<Argument name="UnitType">UNIT_BOMBER</Argument>
+				<Argument name="Amount">1</Argument>
+				<Argument name="CountReplacements">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_AERODYNAMICS</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Nuclear Fission: build Oxford University. A scientific Wonder rather than the war
+	     assumption the node invites. Oxford is unlocked by Academics, an entry-tier tech, so it is
+	     available from the start of the Age and is not circular. -->
+	<Modifier id="ENI_MO_MARK_NUCLEAR_FISSION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_SPECIFIC_WONDER_BUILT">
+				<Argument name="ConstructibleType">WONDER_OXFORD_UNIVERSITY</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_NUCLEAR_FISSION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Rocketry: an Aerodrome and a Laboratory in your Capital - the launch complex. The last tech
+	     in the tree, and a good player often wins before reaching it, so the ask is a place you have
+	     probably already half-built rather than a fresh project. -->
+	<Modifier id="ENI_MO_MARK_ROCKETRY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_LAUNCH_COMPLEX</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_MO_ROCKETRY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- ============ MAIN CIVICS ============ -->
+
+	<!-- ==================== GENERATED: Political Theory ==================== -->
+	<!-- Political Theory: research a node in your OWN civilization's unique civics tree.
+	     ✅ PROVEN IN PLAY 2026-08-08 after two failures. The split below is what fixed it, and the
+	     size law it rests on is now confirmed: an oversized OR-set fires nothing and says nothing.
+	     ⚠ EVERYTHING BETWEEN THE SENTINELS IS GENERATED - re-run
+	     tools/gen-eni-mo-political-theory.py after any civ DLC and do not hand-edit it. A civ whose
+	     id is missing simply never earns this, with no error and no log line; check-eni-drift.py is
+	     what catches that.
+	     ONE MARKER PER CIV TREE, all writing the same key. Two earlier shapes - a named 53-row set
+	     reached by REQUIREMENT_REQUIREMENTSET_IS_MET, then the same 53 rows inline under TEST_ANY -
+	     BOTH FAILED TO FIRE IN PLAY. The base game ships 38 TEST_ANY blocks and the largest holds
+	     FOUR requirements, so 53 was far outside anything Firaxis exercises. Nothing here exceeds
+	     two. A player can satisfy only one marker, so the boost cannot pay twice. -->
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_AMERICA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements type="REQUIREMENTSET_TEST_ANY">
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_AMERICA_CAPTAINS_OF_INDUSTRY</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_AMERICA_YANKEE_INGENUITY</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_BUGANDA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_BUGANDA_NNALUBAALE</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_FRENCH_EMPIRE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements type="REQUIREMENTSET_TEST_ANY">
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_FRENCH_EMPIRE_BELLE_EPOQUE</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_FRENCH_EMPIRE_VOIE_TRIOMPHALE</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_GREAT_BRITAIN" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_GREAT_BRITAIN_PAX_BRITANNICA</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_JOSEON" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements type="REQUIREMENTSET_TEST_ANY">
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_JOSEON_IHAK</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_JOSEON_SEONBI</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_MEIJI" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements type="REQUIREMENTSET_TEST_ANY">
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_MEIJI_BUNMEI_KAIKA</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_MEIJI_OATH_IN_FIVE_ARTICLES</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_MEXICO" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_MEXICO_PLANES_POLITICOS</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_MUGHAL" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_MUGHAL_ZABT</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_NEPAL" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_NEPAL_SAGARMATHA</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_OTTOMANS" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements type="REQUIREMENTSET_TEST_ANY">
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_OTTOMANS_LALE_DEVRI</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_OTTOMANS_SAHI_TOPU</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_PRUSSIA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_PRUSSIA_RUHR</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_QAJAR" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements type="REQUIREMENTSET_TEST_ANY">
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_QAJAR_THE_SUN_THRONE</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_QAJAR_TWELVE_GATES</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_QING" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_QING_TEN_GREAT_CAMPAIGNS</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_RUSSIA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_RUSSIA_SERFDOM</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_SIAM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_SIAM_NINE_GEMS</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_ABBASID" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_ABBASID_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_AKSUM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_AKSUM_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_ASSYRIA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_ASSYRIA_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_BULGARIA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_BULGARIA_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_CARTHAGE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_CARTHAGE_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_CHOLA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_CHOLA_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_DAI_VIET" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_DAI_VIET_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_EGYPT" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_EGYPT_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_GORYEO" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_GORYEO_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_GREECE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_GREECE_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_HAN" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_HAN_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_HAWAII" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_HAWAII_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_HEIAN" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_HEIAN_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_ICELAND" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_ICELAND_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_INCAN" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_INCAN_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_KHMER" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_KHMER_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_MAJAPAHIT" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_MAJAPAHIT_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_MAURYA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_MAURYA_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_MAYA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_MAYA_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_MING" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_MING_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_MISSISSIPPIAN" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_MISSISSIPPIAN_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_MONGOLIA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_MONGOLIA_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_NORMAN" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_NORMAN_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_PERSIA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_PERSIA_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_PIRATE_REPUBLIC" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_PIRATE_REPUBLIC_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_ROMAN" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_ROMAN_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_SENGOKU" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_SENGOKU_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_SHAWNEE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_SHAWNEE_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_SILLA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_SILLA_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_SONGHAI" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_SONGHAI_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_SPAIN" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_SPAIN_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_TONGA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_TONGA_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_AMERICA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_AMERICA, ENI_MO_BOOST_POLITICAL_THEORY_AMERICA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_BUGANDA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_BUGANDA, ENI_MO_BOOST_POLITICAL_THEORY_BUGANDA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_FRENCH_EMPIRE" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_FRENCH_EMPIRE, ENI_MO_BOOST_POLITICAL_THEORY_FRENCH_EMPIRE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_GREAT_BRITAIN" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_GREAT_BRITAIN, ENI_MO_BOOST_POLITICAL_THEORY_GREAT_BRITAIN</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_JOSEON" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_JOSEON, ENI_MO_BOOST_POLITICAL_THEORY_JOSEON</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_MEIJI" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_MEIJI, ENI_MO_BOOST_POLITICAL_THEORY_MEIJI</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_MEXICO" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_MEXICO, ENI_MO_BOOST_POLITICAL_THEORY_MEXICO</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_MUGHAL" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_MUGHAL, ENI_MO_BOOST_POLITICAL_THEORY_MUGHAL</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_NEPAL" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_NEPAL, ENI_MO_BOOST_POLITICAL_THEORY_NEPAL</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_OTTOMANS" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_OTTOMANS, ENI_MO_BOOST_POLITICAL_THEORY_OTTOMANS</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_PRUSSIA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_PRUSSIA, ENI_MO_BOOST_POLITICAL_THEORY_PRUSSIA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_QAJAR" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_QAJAR, ENI_MO_BOOST_POLITICAL_THEORY_QAJAR</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_QING" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_QING, ENI_MO_BOOST_POLITICAL_THEORY_QING</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_RUSSIA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_RUSSIA, ENI_MO_BOOST_POLITICAL_THEORY_RUSSIA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_SIAM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_SIAM, ENI_MO_BOOST_POLITICAL_THEORY_SIAM</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_ABBASID" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_ABBASID, ENI_MO_BOOST_POLITICAL_THEORY_ABBASID</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_AKSUM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_AKSUM, ENI_MO_BOOST_POLITICAL_THEORY_AKSUM</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_ASSYRIA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_ASSYRIA, ENI_MO_BOOST_POLITICAL_THEORY_ASSYRIA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_BULGARIA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_BULGARIA, ENI_MO_BOOST_POLITICAL_THEORY_BULGARIA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_CARTHAGE" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_CARTHAGE, ENI_MO_BOOST_POLITICAL_THEORY_CARTHAGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_CHOLA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_CHOLA, ENI_MO_BOOST_POLITICAL_THEORY_CHOLA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_DAI_VIET" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_DAI_VIET, ENI_MO_BOOST_POLITICAL_THEORY_DAI_VIET</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_EGYPT" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_EGYPT, ENI_MO_BOOST_POLITICAL_THEORY_EGYPT</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_GORYEO" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_GORYEO, ENI_MO_BOOST_POLITICAL_THEORY_GORYEO</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_GREECE" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_GREECE, ENI_MO_BOOST_POLITICAL_THEORY_GREECE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_HAN" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_HAN, ENI_MO_BOOST_POLITICAL_THEORY_HAN</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_HAWAII" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_HAWAII, ENI_MO_BOOST_POLITICAL_THEORY_HAWAII</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_HEIAN" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_HEIAN, ENI_MO_BOOST_POLITICAL_THEORY_HEIAN</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_ICELAND" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_ICELAND, ENI_MO_BOOST_POLITICAL_THEORY_ICELAND</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_INCAN" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_INCAN, ENI_MO_BOOST_POLITICAL_THEORY_INCAN</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_KHMER" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_KHMER, ENI_MO_BOOST_POLITICAL_THEORY_KHMER</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_MAJAPAHIT" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_MAJAPAHIT, ENI_MO_BOOST_POLITICAL_THEORY_MAJAPAHIT</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_MAURYA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_MAURYA, ENI_MO_BOOST_POLITICAL_THEORY_MAURYA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_MAYA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_MAYA, ENI_MO_BOOST_POLITICAL_THEORY_MAYA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_MING" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_MING, ENI_MO_BOOST_POLITICAL_THEORY_MING</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_MISSISSIPPIAN" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_MISSISSIPPIAN, ENI_MO_BOOST_POLITICAL_THEORY_MISSISSIPPIAN</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_MONGOLIA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_MONGOLIA, ENI_MO_BOOST_POLITICAL_THEORY_MONGOLIA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_NORMAN" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_NORMAN, ENI_MO_BOOST_POLITICAL_THEORY_NORMAN</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_PERSIA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_PERSIA, ENI_MO_BOOST_POLITICAL_THEORY_PERSIA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_PIRATE_REPUBLIC" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_PIRATE_REPUBLIC, ENI_MO_BOOST_POLITICAL_THEORY_PIRATE_REPUBLIC</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_ROMAN" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_ROMAN, ENI_MO_BOOST_POLITICAL_THEORY_ROMAN</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_SENGOKU" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_SENGOKU, ENI_MO_BOOST_POLITICAL_THEORY_SENGOKU</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_SHAWNEE" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_SHAWNEE, ENI_MO_BOOST_POLITICAL_THEORY_SHAWNEE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_SILLA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_SILLA, ENI_MO_BOOST_POLITICAL_THEORY_SILLA</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_SONGHAI" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_SONGHAI, ENI_MO_BOOST_POLITICAL_THEORY_SONGHAI</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_SPAIN" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_SPAIN, ENI_MO_BOOST_POLITICAL_THEORY_SPAIN</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_TONGA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_TONGA, ENI_MO_BOOST_POLITICAL_THEORY_TONGA</Argument>
+	</Modifier>
+	<!-- ================== END GENERATED: Political Theory ================== -->
+
+	<!-- Globalism: be engaged in diplomacy with EVERY leader you have met. Not a count - a state,
+	     and one that grows harder the more of the world you know. -->
+	<Modifier id="ENI_MO_MARK_GLOBALISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_DIPLOMACY_ENGAGED_WITH_X_CIVS">
+				<Argument name="WithAll">true</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_GLOBALISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Nationalism: declare a FORMAL WAR.
+	     ✅ PROVEN IN PLAY 2026-08-08, fourth version, and the filter was proven with it: a SURPRISE
+	     war left the marker dark, a FORMAL war lit it. So WarType genuinely discriminates - it is not
+	     a decorative argument on a requirement that would pass on any declaration.
+	     ⚠ AVAILABILITY, from the Modern diplomacy table: 180 Influence, and the cost is IDENTICAL at
+	     every relationship level (Hostile / Unfriendly / Neutral / Friendly / Helpful all 180; 60 in
+	     Antiquity, 120 in Exploration). Nothing gates the action on relationship, so the deed is a
+	     single deliberate purchase rather than a diplomatic campaign - which is what keeps it from
+	     drifting past the node, the timing trap that killed the Aerodrome version.
+	     The Civ VI boost, ported - Civ VI's Nationalism
+	     inspiration was "Declare war using a casus belli" (trigger DOW_CASUS_BELLI), and Civ VII has
+	     exactly two war types, WAR_TYPE_FORMAL_BODY and WAR_TYPE_SURPRISE_BODY. Formal is the casus
+	     belli: DIPLOMACY_ACTION_DECLARE_FORMAL_WAR is a real diplomacy ACTION carrying Opposed="true",
+	     support/oppose summaries and MaxThirdPartySupport, and it spends a global diplomacy token.
+	     Surprise War is not an action at all - just a DiplomacyStatementType with no public process.
+	     WHY FORMAL AND NOT SURPRISE (Chris asked, 2026-08-08): War Support is the game's model of the
+	     nation standing behind the war, and it exists only because Formal War is a contested public
+	     project. A Surprise War COSTS you support - it would fire the deed exactly when the nation is
+	     least behind you, which inverts the civic. The aggression register is already covered twice in
+	     Modern (Radicalism, Absolutism); Nationalism is a main-line node every player passes through.
+	     ⚠ THREE EARLIER VERSIONS FAILED. Keep their lessons:
+	     FAULT 1 - PRE-SATISFIED ON TURN 1: the original asked for one Commendation, and a Modern
+	     advanced start hands you a Commander carrying 5 promotions while an Army Commendation needs 4.
+	     The fix list had declared it safe on exactly that arithmetic - a margin one promotion wide
+	     against a real figure of five. RULE: never make a Modern deed carry-proof BY MARGIN.
+	     FAULT 2 - STATE CHECKS CANNOT BE AGE-SCOPED: asking for Commendations on TWO commanders beats
+	     the advanced start (it grants one Commander) but not a CONTINUOUS campaign arriving from
+	     Exploration with two commended commanders already in hand.
+	     FAULT 3 - THE EVENT FORM DID NOT FIRE EITHER, and the likely reason only became clear after
+	     Liberalism: GOSSIP_UNIT_PROMOTION01 has exactly ONE shipped use in the whole installed game.
+	     A single-use identifier is unproven, and two of the day's three silent failures traced to one.
+	     REQUIREMENT_PLAYER_DECLARED_WAR is a different class of bet: 9 uses, DeclaredByOwner in 8 of
+	     them and WarType in 5, so neither the direction nor the war type is an inference. That is also
+	     why this is NOT the GOSSIP_MAKE_DOW01 form - that gossip encodes direction as OtherPlayer
+	     Self-vs-Other and the data does not say which way it reads.
+	     ⚠ ALSO REJECTED: an Aerodrome Commander commendation (right structure, wrong TIMING - the
+	     Squadron Commander comes from Flight at ~70% tech depth while Nationalism sits at ~47% of the
+	     civic tree); "max out a Discipline" (7-9 promotions deep, and SkipAdvancedStartProgress names
+	     the advanced start only - a commander carried in from Exploration keeps its promotions, so it
+	     cannot be made this-Age); and 2 Great People (Modern ships only three GP classes - Jacobin,
+	     Revolucionario, Uparat - so it would be UNEARNABLE for every other civ).
+	     ⚠ THE ONE UNKNOWN: whether the declaration record resets at an Age flip. Wars themselves do end
+	     at the transition (that is what makes Radicalism carry-safe) but a RECORD of having declared
+	     may be lifetime. Test: read the marker on turn 1 of a Modern advanced start - it must be dark -
+	     then declare a Formal War and read it again. If turn 1 is already lit, move to
+	     GOSSIP_MAKE_DOW01 with AfterInit and resolve the OtherPlayer direction by trying Self first. -->
+	<Modifier id="ENI_MO_MARK_NATIONALISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_DECLARED_WAR">
+				<Argument name="DeclaredByOwner">true</Argument>
+				<Argument name="WarType">FORMAL_WAR</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_NATIONALISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Capitalism: a Stock Exchange adjacent to both a Port and a Rail Station - money where the
+	     sea route meets the rail head. -->
+	<Modifier id="ENI_MO_MARK_CAPITALISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_EXCHANGE</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_CAPITALISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Militarism: Defensive Fortifications in every City. Scales with the empire rather than
+	     being a flat count. Not circular: the building comes from Military Science, an entry-tier
+	     TECH, while this is a late civic. -->
+	<Modifier id="ENI_MO_MARK_MILITARISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_ALL_MET">
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_FORTIFIED</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_FORTIFIEDCITY</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_MILITARISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Hegemony: build 3 Open-Air Museums. The improvement is a city-state unique, so this asks
+	     for suzerainty over a Cultural city-state, taking its culture, and then building with it -
+	     three separate commitments behind one deed. -->
+	<Modifier id="ENI_MO_MARK_HEGEMONY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">3</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_PLOT_YIELDS</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_OPEN_AIR</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_HEGEMONY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- ============ IDEOLOGY BRANCHES ============ -->
+	<!-- Six of the nine branch nodes. Democracy, Fascism and Communism - the three ROOTS - carry
+	     CanBoost="false" in the base data and can never take a boost. -->
+
+	<!-- Liberalism: at peace with every major civilization, 20 turns into the Age.
+	     ✅ PROVEN IN PLAY 2026-08-08 at AfterTurn=10, then RAISED TO 20 the same day (Chris) - a pure
+	     number change on a proven requirement, so it needs no retest. WHY: every Age begins with all
+	     wars ended, so the first ten turns of Modern are peaceful by default and the deed was paying
+	     out for doing nothing - the "happens naturally" anti-pattern. Twenty turns is long enough that
+	     an AI has usually had the chance to declare, which makes holding the peace a choice again.
+	     20 is inside precedent: the base game passes AfterTurn=20 in Modern and 25 in Antiquity.
+	     ⛔ REQUIREMENT_PLAYER_AT_PEACE_X_TURNS_AGO IS RETIRED HERE (2026-08-08). DO NOT BRING IT BACK.
+	     It failed in play THREE times - unbroken peace with every major to turn 22, then again at
+	     TurnsAgo=20, then at TurnsAgo=10 on the story route to turn 21 - and the reason is visible in
+	     the data: it has exactly ONE use in the whole installed game, a Bulgaria Exploration story
+	     that pairs it with GOSSIP_MAKE_DOW01. That is a BETRAYAL check - "you had peace ten turns ago
+	     AND you have since declared war" - so the requirement is most likely about peace that was
+	     BROKEN, and a player who never went to war may never satisfy it at all. Every earlier theory
+	     (live-modifier context, a bounded history, the 20-turn value) was wrong; the requirement
+	     itself is the fault.
+	     WHAT REPLACES IT: REQUIREMENT_GAME_TURN_IS_X_NARRATIVE, 102 shipped uses, the narrative
+	     system's own turn gate. Its AfterTurn values are small in every Age (1-5 typically, 20 once
+	     in Modern, 25 in Antiquity), so it counts turns SINCE THE AGE BEGAN - which is what this deed
+	     needs, because Modern is reached at turn ~1 of an advanced start and turn ~200 of a full
+	     campaign, and an absolute game turn could not serve both.
+	     The companion REQUIREMENT_PLAYER_IS_AT_PEACE_WITH_ALL_MAJORS (35 uses) stays, and still
+	     cannot carry the deed alone: "at peace right now" is satisfied on turn 1 of a peaceful start.
+	     NOT A CONTINUOUS-PEACE CHECK, and the engine offers none - neither was the old pair. -->
+	<RequirementSet id="REQSET_ENI_MO_LIBERALISM_DONE">
+		<Requirement type="REQUIREMENT_PLAYER_IS_AT_PEACE_WITH_ALL_MAJORS"/>
+		<Requirement type="REQUIREMENT_GAME_TURN_IS_X_NARRATIVE">
+			<Argument name="AfterTurn">20</Argument>
+		</Requirement>
+	</RequirementSet>
+	<Modifier id="ENI_MO_MARK_LIBERALISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_BRANCH_LIBERALISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Progressivism: be 4 War Support AHEAD of your opponent.
+	     ✅ PROVEN IN PLAY 2026-08-08 with MoreThanOpponent in place.
+	     ⚠ MoreThanOpponent IS THE WHOLE DEED (added 2026-08-06 from play). With a bare Amount the
+	     requirement reads YOUR OWN support in isolation, not the contest: Chris declared a surprise
+	     war that handed the AI +6, added +4 of his own, and the deed FIRED while he was still 2
+	     BEHIND. A deed about carrying the country with you cannot pay out while the country is
+	     against you.
+	     Amount=4 + MoreThanOpponent=True is a shipped combination at this exact number, and it
+	     matches what the player actually sees - the game's War Support readout is the differential,
+	     so "+4" on screen is "+4" here. LessThanOpponent is the mirror argument, unused. -->
+	<Modifier id="ENI_MO_MARK_PROGRESSIVISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_X_WAR_SUPPORT">
+				<Argument name="Amount">4</Argument>
+				<Argument name="MoreThanOpponent">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_BRANCH_PROGRESSIVISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Radicalism: be at war with 2 major civilizations at once.
+	     ⚠ RE-CUT 2026-08-07. The old deed was "at war with a civilization of an opposing Ideology",
+	     and it depended on A CHOICE THE PLAYER NEVER MAKES OR SEES. Three things had to line up:
+	     you pick Fascism (Radicalism only exists on that branch), SOME AI picks Communism
+	     specifically (Fascism's rival - the ring is one-way, see game-systems-reference), and you
+	     are at war with that AI. Only the first and third are yours. If nobody takes Communism the
+	     deed cannot exist that game, and no amount of play fixes it. It was the only deed in the
+	     mod that another player's decision could make impossible.
+	     The rivalry mechanic is also invisible in-game - Chris did not know it existed, and a deed
+	     that turns on undocumented data is a bad deed however correct the encoding is.
+	     WHAT THIS ADDS: nothing else in 70 deeds reads war as a STATE. Every other combat deed
+	     counts kills or captures; Liberalism is the only war-state deed and it is the INVERSE.
+	     So Radicalism now mirrors Liberalism exactly - war with two against peace with all - and
+	     they sit on opposing branches, Fascism against Democracy.
+	     ⚠ ARGUMENT READING, verified against all three shipped uses: AllMajors / OnlyLiving /
+	     HomeHemisphere are FILTERS and Amount is the COUNT. Two of the three shipped uses omit
+	     Amount entirely (defaulting to 1) while still passing AllMajors, which only makes sense if
+	     AllMajors selects WHO counts rather than meaning "all of them".
+	     ✅ PROVEN IN PLAY 2026-08-08, which settles that reading: Amount=2 + AllMajors fired on two
+	     simultaneous major wars. Had AllMajors meant "every major", it could not have. -->
+
+	<Modifier id="ENI_MO_MARK_RADICALISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_X_WARS">
+				<Argument name="Amount">2</Argument>
+				<Argument name="AllMajors">true</Argument>
+				<Argument name="OnlyLiving">true</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_BRANCH_RADICALISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Absolutism (NODE_CIVIC_MO_BRANCH_AUTHORITARIANISM): raze 2 settlements.
+	     DELIVERED BY A HIDDEN NARRATIVE STORY, not a live modifier (Chris, 2026-08-04) - the marker
+	     and boost below carry NO requirements and are attached as story REWARDS instead.
+	     WHY: REQUIREMENT_PLAYER_RAZED_X_CITIES is one of two requirements the base game uses ONLY
+	     through the Requirements table, never inline. MA's "Delenda Est" feat proves it works - but
+	     from a POLLED Legacy requirement set. A litmus then put the other table-form-only
+	     requirement (PLAYER_HAS_X_SETTLEMENTS_AT) inline in a LIVE modifier and it stayed dark on a
+	     settlement that plainly met its terms. Rather than ship a deed on the suspect route, this
+	     uses the route Antiquity's Wheel, Mysticism, Discipline and Tactics already run on - whose
+	     RequirementSetId is polled exactly as MA's Legacy set is.
+	     The condition itself is unchanged: 2 COMPLETED razings, so a settlement mid-burn pays
+	     nothing. -->
+	<RequirementSet id="REQSET_ENI_MO_ABSOLUTISM_DONE">
+		<Requirement type="REQUIREMENT_PLAYER_RAZED_X_CITIES">
+			<Argument name="Amount">2</Argument>
+		</Requirement>
+	</RequirementSet>
+	<Modifier id="ENI_MO_MARK_ABSOLUTISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_BRANCH_AUTHORITARIANISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Centralism: 5 Farming or Fishing Towns, counted TOGETHER (Chris, 2026-08-08, from play).
+	     ✅ PROVEN IN PLAY 2026-08-08 in this form, after the two-marker version miscounted.
+	     Every one of them gives up trade, production and everything else for food, which is what a
+	     planned agrarian economy costs. The second focus exists because the deed was MAP-DEPENDENT:
+	     a FireTuner sweep of Chris's coastal empire read 1 Farming Town and 5 Fishing - his towns
+	     wanted the coast focus - so a Farming-only deed was near-unearnable there and easy inland.
+	     Terrain the player did not choose should not decide whether a deed exists.
+	     ⚠ WHY THIS COUNTS THE SETTLEMENTS INSTEAD: see SUBREQSET_ENI_MO_FOOD_TOWN above. The old
+	     REQUIREMENT_PLAYER_HAS_X_TOWNS_PRODUCING_PROJECT pair gave max(farming, fishing), not the
+	     total, and read 2 on an empire holding 2 of each. Same shape as Socialism, which fires. -->
+	<Modifier id="ENI_MO_MARK_CENTRALISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">5</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_FOOD_TOWN</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_BRANCH_CENTRALISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Socialism: a Tenement in every City. Housing for all of them, not a showpiece block.
+	     Not circular: the Tenement comes from Radio, a TECH. -->
+	<Modifier id="ENI_MO_MARK_SOCIALISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_ALL_MET">
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_HOUSED</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_HOUSEDCITY</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_BRANCH_SOCIALISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- ============ attach wrappers ============ -->
+	<!-- A Modifier is inert until something instantiates it. Each wrapper attaches one deed's
+	     marker AND its boost to every major player; mo-deeds-bind.xml binds the wrappers. -->
+	<Modifier id="ENI_MO_ATTACH_ELECTRICITY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_ELECTRICITY, ENI_MO_BOOST_ELECTRICITY</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_URBANIZATION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_URBANIZATION, ENI_MO_BOOST_URBANIZATION</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_COMBUSTION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_COMBUSTION, ENI_MO_BOOST_COMBUSTION</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_INDUSTRIALIZATION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_INDUSTRIALIZATION, ENI_MO_BOOST_INDUSTRIALIZATION</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_RADIO" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_RADIO, ENI_MO_BOOST_RADIO</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_FLIGHT" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_FLIGHT, ENI_MO_BOOST_FLIGHT</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_MASS_PRODUCTION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_MASS_PRODUCTION, ENI_MO_BOOST_MASS_PRODUCTION</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_COMPUTATION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_COMPUTATION, ENI_MO_BOOST_COMPUTATION</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_MOBILIZATION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_MOBILIZATION, ENI_MO_BOOST_MOBILIZATION</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_ARMOR" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_ARMOR, ENI_MO_BOOST_ARMOR</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_AERODYNAMICS" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_AERODYNAMICS, ENI_MO_BOOST_AERODYNAMICS</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_NUCLEAR_FISSION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_NUCLEAR_FISSION, ENI_MO_BOOST_NUCLEAR_FISSION</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_ROCKETRY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_ROCKETRY, ENI_MO_BOOST_ROCKETRY</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_GLOBALISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_GLOBALISM, ENI_MO_BOOST_GLOBALISM</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_NATIONALISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_NATIONALISM, ENI_MO_BOOST_NATIONALISM</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_CAPITALISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_CAPITALISM, ENI_MO_BOOST_CAPITALISM</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_MILITARISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_MILITARISM, ENI_MO_BOOST_MILITARISM</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_HEGEMONY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_HEGEMONY, ENI_MO_BOOST_HEGEMONY</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_PROGRESSIVISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_PROGRESSIVISM, ENI_MO_BOOST_PROGRESSIVISM</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_RADICALISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_RADICALISM, ENI_MO_BOOST_RADICALISM</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_CENTRALISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_CENTRALISM, ENI_MO_BOOST_CENTRALISM</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_SOCIALISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_SOCIALISM, ENI_MO_BOOST_SOCIALISM</Argument>
+	</Modifier>
+
+	<!-- ============================ STEP TRACKERS ============================
+	     A counted deed's own marker only flips when the WHOLE count is met, so the dashboard has
+	     nothing partial to read and the card sits blank until it suddenly completes. Each tracker
+	     is the deed's OWN requirement at a lower threshold, cloned from the parent marker by
+	     tools/, never retyped - a drifted filter would count the wrong thing and read as a UI bug.
+	     A deed needs only (need - 1) trackers: the last part IS the deed's marker property.
+	     Built for the three Modern deeds an audit found showing nothing (tools/audit-eni-counters.py):
+	     Radio and Mobilization count EVENTS the engine never surfaces, and Centralism's five towns
+	     can only be counted by touring the empire.
+	     ⚠ CENTRALISM counts Farming and Fishing Towns TOGETHER, exactly as the deed itself does,
+	     so a coastal player watching Fishing Towns sees the same counter an inland player does. -->
+	<Modifier id="ENI_MO_STEP_RADIO_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_ACTION_STARTED01</Argument>
+				<Argument name="GOSSIP_DIPLOMACY_ACTION_STARTED01">Hash,DiplomacyActionGroup,DIPLOMACY_ACTION_GROUP_ESPIONAGE,Hash,OtherPlayer,Other</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_RADIO_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_RADIO_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_ACTION_STARTED01</Argument>
+				<Argument name="GOSSIP_DIPLOMACY_ACTION_STARTED01">Hash,DiplomacyActionGroup,DIPLOMACY_ACTION_GROUP_ESPIONAGE,Hash,OtherPlayer,Other</Argument>
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_RADIO_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_MOBILIZATION_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,KillingDomainType,DOMAIN_AIR</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_MOBILIZATION_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_MOBILIZATION_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,KillingDomainType,DOMAIN_AIR</Argument>
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_MOBILIZATION_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_CENTRALISM_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_FOOD_TOWN</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_CENTRALISM_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_CENTRALISM_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">2</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_FOOD_TOWN</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_CENTRALISM_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_CENTRALISM_3" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">3</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_FOOD_TOWN</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_CENTRALISM_3</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_CENTRALISM_4" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">4</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_MO_FOOD_TOWN</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_CENTRALISM_4</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Wrappers are 2-item comma lists ON PURPOSE: one long list silently attaches NOTHING. -->
+	<Modifier id="ENI_MO_ATTACH_STEPS1" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_STEP_RADIO_1, ENI_MO_STEP_RADIO_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_STEPS2" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_STEP_MOBILIZATION_1, ENI_MO_STEP_MOBILIZATION_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_STEPS3" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_STEP_CENTRALISM_1, ENI_MO_STEP_CENTRALISM_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_STEPS4" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_STEP_CENTRALISM_3, ENI_MO_STEP_CENTRALISM_4</Argument>
+	</Modifier>
+	<!-- ============== GENERATED: progress trackers ============== -->
+	<!-- Progress trackers: each one is its deed's OWN requirement at a lower threshold,
+	     writing its own key so the dashboard can draw an N / M. GENERATED by
+	     tools/gen-eni-step-trackers.py - the requirement is CLONED from the marker, never retyped,
+	     because a drifted filter counts the wrong thing and reads in-game as a UI bug with no error.
+	     A deed needs only (need - 1) trackers: the last part IS the deed's own marker property.
+	     Wrappers are 2-item comma lists ON PURPOSE - one long list silently attaches NOTHING. -->
+	<Modifier id="ENI_MO_STEP_ELECTRICITY_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_RESOURCES">
+					<Argument name="ResourceType">RESOURCE_COAL,RESOURCE_OIL</Argument>
+					<Argument name="Amount">1</Argument>
+					<Argument name="CountAllCopies">true</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_ELECTRICITY_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_ELECTRICITY_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_RESOURCES">
+					<Argument name="ResourceType">RESOURCE_COAL,RESOURCE_OIL</Argument>
+					<Argument name="Amount">2</Argument>
+					<Argument name="CountAllCopies">true</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_ELECTRICITY_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_ELECTRICITY_3" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_RESOURCES">
+					<Argument name="ResourceType">RESOURCE_COAL,RESOURCE_OIL</Argument>
+					<Argument name="Amount">3</Argument>
+					<Argument name="CountAllCopies">true</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_ELECTRICITY_3</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_URBANIZATION_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+					<Argument name="BuildingType">BUILDING_CITY_PARK</Argument>
+					<Argument name="Amount">1</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_URBANIZATION_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_URBANIZATION_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+					<Argument name="BuildingType">BUILDING_CITY_PARK</Argument>
+					<Argument name="Amount">2</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_URBANIZATION_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_MASS_PRODUCTION_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+					<Argument name="Count">1</Argument>
+					<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+					<Argument name="RequirementSetId">SUBREQSET_ENI_MO_RAILED</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_MASS_PRODUCTION_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_HEGEMONY_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+					<Argument name="Count">1</Argument>
+					<Argument name="CollectionType">COLLECTION_PLAYER_PLOT_YIELDS</Argument>
+					<Argument name="RequirementSetId">SUBREQSET_ENI_MO_OPEN_AIR</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_HEGEMONY_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_STEP_HEGEMONY_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+					<Argument name="Count">2</Argument>
+					<Argument name="CollectionType">COLLECTION_PLAYER_PLOT_YIELDS</Argument>
+					<Argument name="RequirementSetId">SUBREQSET_ENI_MO_OPEN_AIR</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_MO_STEP_HEGEMONY_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_STEPS5" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_STEP_ELECTRICITY_1, ENI_MO_STEP_ELECTRICITY_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_STEPS6" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_STEP_ELECTRICITY_3</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_STEPS7" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_STEP_URBANIZATION_1, ENI_MO_STEP_URBANIZATION_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_STEPS8" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_STEP_MASS_PRODUCTION_1</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_STEPS9" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_STEP_HEGEMONY_1, ENI_MO_STEP_HEGEMONY_2</Argument>
+	</Modifier>
+	<!-- ============ END GENERATED: progress trackers ============ -->
+</GameEffects>

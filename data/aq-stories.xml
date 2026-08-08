@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+	<!-- The 4 event-count deeds (Wheel, Mysticism, Discipline, Tactics) ride HIDDEN
+	     narrative stories, encoded the CORRECT way this time:
+	     - ActivationRequirementSetId = trivially true at story init (age match; checked
+	       ONCE, silently archived if false - the wrong-way-round lesson)
+	     - RequirementSetId = THE DEED (gossip counters; polled continuously)
+	     - Hidden = no native popup; the mod's own UI pops when the reward marker lands.
+	     Rewards attach the boost + marker modifier pair at completion. -->
+	<Types>
+		<Row Type="ENI_AQ_WHEEL" Kind="KIND_NARRATIVE_STORY"/>
+		<Row Type="ENI_AQ_MYSTICISM" Kind="KIND_NARRATIVE_STORY"/>
+		<Row Type="ENI_AQ_DISCIPLINE" Kind="KIND_NARRATIVE_STORY"/>
+		<Row Type="ENI_AQ_TACTICS" Kind="KIND_NARRATIVE_STORY"/>
+	</Types>
+	<NarrativeStories>
+		<Row NarrativeStoryType="ENI_AQ_WHEEL" Name="LOC_ENI_AQ_WHEEL_NAME" Description="LOC_ENI_AQ_WHEEL_DESC" Completion="LOC_ENI_AQ_WHEEL_DONE" Age="AGE_ANTIQUITY" Activation="REQUISITE" Hidden="TRUE" ActivationRequirementSetId="REQSET_ENI_AQ_ELIGIBLE" RequirementSetId="REQSET_ENI_AQ_WHEEL_DONE" UIActivation="STANDARD"/>
+		<Row NarrativeStoryType="ENI_AQ_MYSTICISM" Name="LOC_ENI_AQ_MYSTICISM_NAME" Description="LOC_ENI_AQ_MYSTICISM_DESC" Completion="LOC_ENI_AQ_MYSTICISM_DONE" Age="AGE_ANTIQUITY" Activation="REQUISITE" Hidden="TRUE" ActivationRequirementSetId="REQSET_ENI_AQ_ELIGIBLE" RequirementSetId="REQSET_ENI_AQ_MYSTICISM_DONE" UIActivation="STANDARD"/>
+		<Row NarrativeStoryType="ENI_AQ_DISCIPLINE" Name="LOC_ENI_AQ_DISCIPLINE_NAME" Description="LOC_ENI_AQ_DISCIPLINE_DESC" Completion="LOC_ENI_AQ_DISCIPLINE_DONE" Age="AGE_ANTIQUITY" Activation="REQUISITE" Hidden="TRUE" ActivationRequirementSetId="REQSET_ENI_AQ_ELIGIBLE" RequirementSetId="REQSET_ENI_AQ_DISCIPLINE_DONE" UIActivation="STANDARD"/>
+		<Row NarrativeStoryType="ENI_AQ_TACTICS" Name="LOC_ENI_AQ_TACTICS_NAME" Description="LOC_ENI_AQ_TACTICS_DESC" Completion="LOC_ENI_AQ_TACTICS_DONE" Age="AGE_ANTIQUITY" Activation="REQUISITE" Hidden="TRUE" ActivationRequirementSetId="REQSET_ENI_AQ_ELIGIBLE" RequirementSetId="REQSET_ENI_AQ_TACTICS_DONE" UIActivation="STANDARD"/>
+	</NarrativeStories>
+	<NarrativeRewards>
+		<Row NarrativeRewardType="ENI_RW_BOOST_WHEEL" ModifierID="ENI_BOOST_WHEEL"/>
+		<Row NarrativeRewardType="ENI_RW_MARK_WHEEL" ModifierID="ENI_MARK_WHEEL"/>
+		<Row NarrativeRewardType="ENI_RW_BOOST_MYSTICISM" ModifierID="ENI_BOOST_MYSTICISM"/>
+		<Row NarrativeRewardType="ENI_RW_MARK_MYSTICISM" ModifierID="ENI_MARK_MYSTICISM"/>
+		<Row NarrativeRewardType="ENI_RW_BOOST_DISCIPLINE" ModifierID="ENI_BOOST_DISCIPLINE"/>
+		<Row NarrativeRewardType="ENI_RW_MARK_DISCIPLINE" ModifierID="ENI_MARK_DISCIPLINE"/>
+		<Row NarrativeRewardType="ENI_RW_BOOST_TACTICS" ModifierID="ENI_BOOST_TACTICS"/>
+		<Row NarrativeRewardType="ENI_RW_MARK_TACTICS" ModifierID="ENI_MARK_TACTICS"/>
+	</NarrativeRewards>
+	<NarrativeStory_Rewards>
+		<Row NarrativeStoryType="ENI_AQ_WHEEL" NarrativeRewardType="ENI_RW_BOOST_WHEEL" Activation="COMPLETE"/>
+		<Row NarrativeStoryType="ENI_AQ_WHEEL" NarrativeRewardType="ENI_RW_MARK_WHEEL" Activation="COMPLETE"/>
+		<Row NarrativeStoryType="ENI_AQ_MYSTICISM" NarrativeRewardType="ENI_RW_BOOST_MYSTICISM" Activation="COMPLETE"/>
+		<Row NarrativeStoryType="ENI_AQ_MYSTICISM" NarrativeRewardType="ENI_RW_MARK_MYSTICISM" Activation="COMPLETE"/>
+		<Row NarrativeStoryType="ENI_AQ_DISCIPLINE" NarrativeRewardType="ENI_RW_BOOST_DISCIPLINE" Activation="COMPLETE"/>
+		<Row NarrativeStoryType="ENI_AQ_DISCIPLINE" NarrativeRewardType="ENI_RW_MARK_DISCIPLINE" Activation="COMPLETE"/>
+		<Row NarrativeStoryType="ENI_AQ_TACTICS" NarrativeRewardType="ENI_RW_BOOST_TACTICS" Activation="COMPLETE"/>
+		<Row NarrativeStoryType="ENI_AQ_TACTICS" NarrativeRewardType="ENI_RW_MARK_TACTICS" Activation="COMPLETE"/>
+	</NarrativeStory_Rewards>
+</Database>

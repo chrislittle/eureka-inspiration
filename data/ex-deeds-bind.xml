@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+	<!-- THE BIND. A GameEffects <Modifier> is inert until something instantiates it - this is the
+	     piece whose absence left Antiquity's whole direct-deed engine silently dead for three
+	     debugging rounds. One row per attach wrapper. -->
+	<GameModifiers>
+		<Row ModifierId="ENI_EX_ATTACH_FEUDALISM"/>
+		<Row ModifierId="ENI_EX_ATTACH_GUILDS"/>
+		<Row ModifierId="ENI_EX_ATTACH_CASTLES"/>
+		<Row ModifierId="ENI_EX_ATTACH_HERALDRY"/>
+		<Row ModifierId="ENI_EX_ATTACH_EDUCATION"/>
+		<Row ModifierId="ENI_EX_ATTACH_METALLURGY"/>
+		<Row ModifierId="ENI_EX_ATTACH_SHIPBUILDING"/>
+		<Row ModifierId="ENI_EX_ATTACH_ARCHITECTURE"/>
+		<Row ModifierId="ENI_EX_ATTACH_METAL_CASTING"/>
+		<Row ModifierId="ENI_EX_ATTACH_GUNPOWDER"/>
+		<Row ModifierId="ENI_EX_ATTACH_URBAN_PLANNING"/>
+		<Row ModifierId="ENI_EX_ATTACH_REFORMATION"/>
+		<Row ModifierId="ENI_EX_ATTACH_AUTHORITY"/>
+		<Row ModifierId="ENI_EX_ATTACH_INSPIRATION"/>
+		<Row ModifierId="ENI_EX_ATTACH_MERCANTILISM"/>
+		<Row ModifierId="ENI_EX_ATTACH_BUREAUCRACY"/>
+		<Row ModifierId="ENI_EX_ATTACH_COLONIALISM"/>
+		<Row ModifierId="ENI_EX_ATTACH_DIPLOMATIC_SERVICE"/>
+		<Row ModifierId="ENI_EX_ATTACH_SOCIETY"/>
+		<Row ModifierId="ENI_EX_ATTACH_IMPERIALISM"/>
+		<Row ModifierId="ENI_EX_ATTACH_SOCIAL_CLASS"/>
+		<Row ModifierId="ENI_EX_ATTACH_SOVEREIGNTY"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS1"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS2"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS3"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS4"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS5"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS6"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS7"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS8"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS9"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS10"/>
+	<!-- ============== GENERATED: progress trackers ============== -->
+		<Row ModifierId="ENI_EX_ATTACH_STEPS11"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS12"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS13"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS14"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS15"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS16"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS17"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS18"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS19"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS20"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS21"/>
+		<Row ModifierId="ENI_EX_ATTACH_STEPS22"/>
+	<!-- ============ END GENERATED: progress trackers ============ -->
+	</GameModifiers>
+</Database>

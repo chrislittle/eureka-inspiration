@@ -1,0 +1,1236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameEffects xmlns="GameEffects">
+	<!-- The deed engine, wave 1 (16 Antiquity deeds with direct shipped requirements).
+	     LITMUS-PROVEN SHAPE (probe C): every deed is a pair of always-attached run-once
+	     modifiers gated by inline SubjectRequirements - the marker (here) and the boost
+	     (aq-boosts-40.xml, same requirements). No narrative stories: the REQUISITE story
+	     route never activated in-game. The popup is UI-side (eni-dashboard watches the
+	     marker properties). Remaining 7 AQ deeds (event-count) arrive in wave 2. -->
+
+	<!-- City-scoped sub-sets used by the COLLECTION_ANY_MET deeds -->
+	<!-- Philosophy: a City (not a Town) at the top of the happiness ladder -->
+	<!-- Iron Working: one tile holding BOTH the Blacksmith and the Barracks -->
+	<!-- Navigation: one settlement that is genuinely maritime -->
+	<!-- Navigation: a fished coastline. TWO plot sub-sets, both counted over
+	     COLLECTION_PLAYER_PLOT_YIELDS - deliberately NO city-scoped requirement anywhere, so a
+	     fishing TOWN qualifies (Chris, 2026-08-04).
+	     WHY THE CITY SHAPE WENT: the old sub-set bound all three conditions to one CITY via
+	     REQUIREMENT_CITY_HAS_TERRAIN. In play it stayed dark on a Town holding 8 owned and 6 worked
+	     Coast tiles WITH both buildings, and fired the moment that Town was promoted to a City - so
+	     something in that set is City-gated, and we could not tell which requirement from the data
+	     (the base game uses CITY_HAS_TERRAIN both with and without a CITY_IS_CITY guard). Rather
+	     than ship a rule we do not understand, this states the condition in plot terms we control.
+	     Both parts were measured live by a FireTuner probe before encoding: the coast/rural pair
+	     read 6 in Neapolis, and Capua showed Harbor and Fishing Quay sharing one tile.
+	     Neither building is FULL_TILE, so requiring both on ONE plot is legal and keeps them
+	     together without needing a settlement scope. -->
+	<!-- the settlement-level wrapper: BOTH plot counts scoped to ONE city. Nesting a plot count
+	     inside a city sub-set has no precedent anywhere in the shipped game - PROVEN by litmus
+	     2026-08-04 (eni-coastnest-litmus, PROBE_NEST=1 with the empire-wide control also at 1), and
+	     then PROVEN IN PLAY the same day when this deed fired on the assembled shape.
+	     Before that proof this deed had to count tiles empire-wide, which let a fishing town borrow
+	     coastline from elsewhere. -->
+	<RequirementSet id="SUBREQSET_ENI_AQ_FISHING_SETTLEMENT">
+		<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+			<Argument name="Count">6</Argument>
+			<Argument name="CollectionType">COLLECTION_CITY_PLOT_YIELDS</Argument>
+			<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_FISHED_COAST</Argument>
+		</Requirement>
+		<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+			<Argument name="Count">1</Argument>
+			<Argument name="CollectionType">COLLECTION_CITY_PLOT_YIELDS</Argument>
+			<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_FISHING_PORT</Argument>
+		</Requirement>
+	</RequirementSet>
+	<RequirementSet id="SUBREQSET_ENI_AQ_FISHED_COAST">
+		<Requirement type="REQUIREMENT_PLOT_TERRAIN_TYPE_MATCHES">
+			<Argument name="TerrainType">TERRAIN_COAST</Argument>
+		</Requirement>
+		<Requirement type="REQUIREMENT_PLOT_DISTRICT_CLASS">
+			<Argument name="DistrictClass">RURAL</Argument>
+		</Requirement>
+	</RequirementSet>
+	<RequirementSet id="SUBREQSET_ENI_AQ_FISHING_PORT">
+		<Requirement type="REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE">
+			<Argument name="ConstructibleType">BUILDING_HARBOR</Argument>
+		</Requirement>
+		<Requirement type="REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE">
+			<Argument name="ConstructibleType">BUILDING_FISHING_QUAY</Argument>
+		</Requirement>
+	</RequirementSet>
+	<RequirementSet id="SUBREQSET_ENI_AQ_ARSENAL">
+		<Requirement type="REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE">
+			<Argument name="ConstructibleType">BUILDING_BLACKSMITH</Argument>
+		</Requirement>
+		<Requirement type="REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE">
+			<Argument name="ConstructibleType">BUILDING_BARRACKS</Argument>
+		</Requirement>
+	</RequirementSet>
+	<RequirementSet id="SUBREQSET_ENI_AQ_ECSTATIC_CITY">
+		<Requirement type="REQUIREMENT_CITY_IS_CITY"/>
+		<Requirement type="REQUIREMENT_SETTLEMENT_HAPPINESS_STAGE_MATCHES">
+			<Argument name="HappinessStage">HAPPINESS_STAGE_ECSTATIC</Argument>
+			<Argument name="IsGreaterThanOrEquals">true</Argument>
+		</Requirement>
+	</RequirementSet>
+	<RequirementSet id="SUBREQSET_ENI_AQ_MONUMENT">
+		<Requirement type="REQUIREMENT_CITY_HAS_BUILDING">
+			<Argument name="BuildingType">BUILDING_MONUMENT</Argument>
+		</Requirement>
+	</RequirementSet>
+	<!-- Skilled Trades: 7 assigned Resources in ONE city. Slot math: City +1, Capital +2,
+	     Market +1, Lighthouse +2 - so Market+Lighthouse gives an ordinary city 4 and a
+	     capital 6; 7 needs a further capacity source (wonder / city-state / tradition). -->
+	<RequirementSet id="SUBREQSET_ENI_AQ_SKILLED_TRADES">
+		<Requirement type="REQUIREMENT_CITY_HAS_X_RESOURCES_ASSIGNED">
+			<Argument name="Amount">9</Argument>
+		</Requirement>
+	</RequirementSet>
+	<!-- Mathematics (738): a plot with a Library AND >=1 assigned Specialist, counted
+	     TWICE (Count=2 below) - one Library per settlement, so it means 2 settlements
+	     each dedicating a specialist to science. Plot-scoped worker req = Joseon idiom. -->
+	<RequirementSet id="SUBREQSET_ENI_AQ_MATHEMATICS">
+		<Requirement type="REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE">
+			<Argument name="ConstructibleType">BUILDING_LIBRARY</Argument>
+		</Requirement>
+		<Requirement type="REQUIREMENT_PLOT_HAS_X_WORKER_POPULATION">
+			<Argument name="MinWorkerPopulation">1</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- The 4 event-count deeds are delivered by hidden narrative stories (aq-stories.xml):
+	     activation set = trivially true at init (age match), completion set = the deed,
+	     POLLED continuously - the correct story encoding. Their sets live here. -->
+	<RequirementSet id="REQSET_ENI_AQ_ELIGIBLE">
+		<Requirement type="REQUIREMENT_GAME_AGE_TYPE_MATCH">
+			<Argument name="AgeType">AGE_ANTIQUITY</Argument>
+		</Requirement>
+	</RequirementSet>
+	<!-- The Wheel: Trigger 3 Celebrations (celebration = golden age internally) -->
+	<RequirementSet id="REQSET_ENI_AQ_WHEEL_DONE">
+		<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+			<Argument name="GossipTypes">GOSSIP_GOLDEN_AGE01</Argument>
+			<Argument name="DuplicateCount">3</Argument>
+					<Argument name="AfterInit">True</Argument>
+		</Requirement>
+	</RequirementSet>
+	<!-- Mysticism: Discover a Natural Wonder -->
+	<RequirementSet id="REQSET_ENI_AQ_MYSTICISM_DONE">
+		<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+			<Argument name="GossipTypes">GOSSIP_FIND_NATURAL_WONDER01</Argument>
+			<!-- AfterInit added 2026-08-06: Age-scopes the count. Harmless in Antiquity (first Age,
+			     nothing carries in) but the shape gets copied forward, and without it a later-Age copy
+			     would count events from previous Ages. -->
+			<Argument name="AfterInit">True</Argument>
+		</Requirement>
+	</RequirementSet>
+	<!-- Discipline: Defeat an Independent unit (Chris, 2026-08-02, replacing "Train 1 Warrior and 1
+	     Slinger"). The old deed was near-free - both are opening builds - and any harder training
+	     version pushed bad play, since "Infantry" at this point means Warriors and nothing else.
+	     Paired deliberately with Tactics so the two combat deeds do NOT nest: this counts kills where
+	     IsDyingMinorPlayer is TRUE (Independents), Tactics counts only FALSE (major civilizations).
+	     Independents are the opening-turns fight and sit right next to you; a major-civ war is a
+	     later, deliberate act. Neither deed's kills count toward the other.
+	     Thematically it is the node's own depth-2 tradition HONOR, which grants a combat bonus
+	     against Independents. Naming no unit also means no unique-unit exposure - and note the kill
+	     event has NO KillingUnitTypeReplaces, so a killer-type filter could not have been made safe. -->
+	<RequirementSet id="REQSET_ENI_AQ_DISCIPLINE_DONE">
+		<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+			<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+			<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,IsDyingMinorPlayer,True</Argument>
+			<!-- AfterInit added 2026-08-06: Age-scopes the count. Harmless in Antiquity (first Age,
+			     nothing carries in) but the shape gets copied forward, and without it a later-Age copy
+			     would count events from previous Ages. -->
+			<Argument name="AfterInit">True</Argument>
+		</Requirement>
+	</RequirementSet>
+	<!-- Tactics: defeat an enemy standing inside THEIR Commander's radius - break the formation
+	     (Chris, 2026-08-04, replacing "Defeat 2 Ranged units").
+	     WHY THE RANGED VERSION DIED: it was unearnable in practice. The AI does not field ranged
+	     units in Antiquity even at Deity - it builds infantry almost exclusively - so a whole Age
+	     went by without the deed coming up. The number was never the problem.
+	     THE PRINCIPLE THAT REPLACED IT: a deed must not depend on what the AI CHOOSES TO BUILD.
+	     Every combat deed should key on something the player controls or the enemy cannot avoid.
+	     An enemy near its own Commander is the latter - the AI packs units around Commanders by
+	     design, so the target exists whatever it builds.
+	     DyingUnitInCommandRadius is the exact MIRROR of Organized Military's
+	     KillingUnitInCommandRadius (which describes YOUR unit's position), so the two read opposite
+	     ends of the same event and stay distinct. Antiquity's four combat deeds now measure four
+	     different things: Discipline the target's OWNER, Organized Military the KILLER's position,
+	     Tactics the TARGET's position, Military Training the Commander's own record.
+	     Rejected alongside: KillingUnitKillCount ("a veteran unit") - Civ VII has no unit-level
+	     veterancy, only Commanders, so the field would not mean what the deed said (Chris);
+	     IsDyingUnitWalled - still an AI build choice, and it overlaps Exploration's Gunpowder.
+	     ⚠ 2 may prove EASY where the ranged version was impossible: most AI units in a war sit
+	     inside a Commander radius. Watch the step-1 chip - if it lights on the first fight, raise
+	     the count rather than re-cutting again. -->
+	<RequirementSet id="REQSET_ENI_AQ_TACTICS_DONE">
+		<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+			<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+			<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,DyingUnitInCommandRadius,True</Argument>
+			<Argument name="DuplicateCount">2</Argument>
+					<Argument name="AfterInit">True</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- Writing: meet 2 civilizations AND request Open Borders with one of them (Chris, 2026-08-04).
+	     Writing costs only 125, so the worry was that the node finishes before a treaty can be
+	     requested. Chris ruled that out from play: at +10 Influence per turn both halves land
+	     comfortably inside the window (Open Borders costs 15-35 by relationship).
+	     OPEN BORDERS IS A TREATY, not an Endeavor - DIPLOMACY_ACTION_GROUP_TREATY. Exploration's
+	     Mercantilism owns the Endeavor group, so the two do not overlap.
+	     Filtered on the specific DiplomacyActionType, which has plenty of shipped precedent
+	     (CS_LEVY_UNIT, CULTURAL_EXCHANGE, INCITE_RAID). Deliberately NOT
+	     REQUIREMENT_PLAYER_HAS_COMPLETED_X_DIPLOMACY_ACTIONS: its argument is named ActionType but
+	     BOTH shipped uses pass an action GROUP, so a specific action there is unproven.
+	     Fires when YOU REQUEST the treaty, not when it is accepted - the Influence is spent either
+	     way, and accepting one the AI offers is a different action. The deed text says "request"
+	     for exactly that reason (Chris). -->
+	<Modifier id="ENI_MARK_WRITING" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_MET_NUM_CIVS">
+				<Argument name="Amount">2</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_ACTION_STARTED01</Argument>
+				<Argument name="GOSSIP_DIPLOMACY_ACTION_STARTED01">Hash,OtherPlayer,Other,Hash,DiplomacyActionType,DIPLOMACY_ACTION_OPEN_BORDERS</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_AQ_WRITING</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Irrigation: 5 different TYPES of rural improvement, EMPIRE-WIDE (Chris, 2026-08-02,
+	     replacing "6 Rural Population in one settlement").
+	     This is the design first built for Exploration's Feudalism, and ANTIQUITY is where it belongs:
+	     there is no advanced start in the first Age, so the placement phase that pre-filled it in
+	     Exploration (five types landed at once, deed done on turn 1) simply does not exist here.
+	     Counted through NARRATIVE_TAG_ENI_AQ_RURAL_TYPE - one tag per TYPE, granted run-once by the
+	     per-type markers below. That is deliberate: Amount on a gossip requirement counts MATCHED
+	     SLOTS, not distinct concepts, so listing a base id and its resource twin would let one logical
+	     type score twice. One type = at most one tag, however many tiles are improved.
+	     Bar set at 5 of 9 because the deed is EMPIRE-WIDE and a good player holds a city and several
+	     towns by 125 research, which made 4 trivial. 6 was rejected: Clay Pit routes from a single
+	     resource and Pasture from three, and Fishing Boat needs coast, so a 6-type bar can strand a
+	     player hunting one rare thing long after the node completed. -->
+	<Modifier id="ENI_MARK_IRRIGATION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_NARRATIVE_TAGS">
+				<Argument name="NarrativeTagType">NARRATIVE_TAG_ENI_AQ_RURAL_TYPE</Argument>
+				<Argument name="Amount">6</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_AQ_IRRIGATION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Masonry: Have 2 Quarries (= 2 improved quarried Resources, ANY mix - Chris 2026-08-01).
+	     All 5 AQ quarried resources (Marble/Gypsum/Jade/Kaolin/Limestone) share
+	     IMPROVEMENT_QUARRY, so counting the improvement counts them all; improvements ARE
+	     countable by this requirement - base precedent IMPROVEMENT_ORTOO Amount=4. -->
+	<Modifier id="ENI_MARK_MASONRY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+				<Argument name="BuildingType">IMPROVEMENT_QUARRY</Argument>
+				<Argument name="Amount">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_AQ_MASONRY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Currency: support 4 Endeavors (2 -> 4, Chris, 2026-08-04, from play).
+	     WHY IT ROSE: it fired off TWO endeavors that a single AI proposed - the player only had to
+	     accept. A deed the AI can hand you is not a deed, and DuplicateCount counts events rather
+	     than distinct partners, so one friendly neighbour could supply the whole thing.
+	     4 does not fix the partner problem (no argument exists for distinct partners on a gossip
+	     count - the same limitation recorded for EX Mercantilism), but it does make a passive
+	     accept-everything player wait, and each support still costs Influence.
+	     ⚠ If 4 also falls out of AI proposals, the shape is wrong rather than the number - but do
+	     NOT "fix" it by keying on the player INITIATING an endeavor. That is exactly Exploration's
+	     Mercantilism ("Begin 2 Endeavors"), and Currency would become the same deed one Age earlier
+	     (Chris, 2026-08-06). Responding is Currency's whole distinction: Mercantilism is what YOU
+	     propose, Currency is what you are willing to BACK. If 4 proves too passive, find another
+	     angle on supporting - or re-cut the subject - rather than converging the two. -->
+	<Modifier id="ENI_MARK_CURRENCY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_RESPONSE01</Argument>
+				<Argument name="GOSSIP_DIPLOMACY_RESPONSE01">Hash,DiplomacyResponseType,DIPLOMACY_RESPONSE_SUPPORT</Argument>
+				<Argument name="DuplicateCount">4</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_AQ_CURRENCY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Bronze Working: Have 2 improved Iron resources -->
+	<Modifier id="ENI_MARK_BRONZE_WORKING" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_PRODUCES_AT_LEAST_X_RESOURCE">
+				<Argument name="ResourceType">RESOURCE_IRON</Argument>
+				<Argument name="Amount">2</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_AQ_BRONZE_WORKING</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Military Training: earn a Commendation on an Army Commander (Chris 2026-08-01).
+	     A Commendation is only unlocked by completing a whole promotion TREE - a committed
+	     specialisation, not just 3 accumulated levels. OnlyCommendations=True + LevelCount=1
+	     = "1 commendation" (base precedent uses exactly this pair). -->
+	<Modifier id="ENI_MARK_MILITARY_TRAINING" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMMANDERS_WITH_X_LEVELS">
+				<Argument name="CommanderCount">1</Argument>
+				<Argument name="LevelCount">1</Argument>
+				<Argument name="OnlyCommendations">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_AQ_MILITARY_TRAINING</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Iron Working (738 - joint most expensive AQ tech): Build 2 Blacksmiths.
+	     Buildings are one per settlement, so this = 2 settlements. -->
+	<!-- Iron Working: a Blacksmith and a Barracks on the SAME TILE - the arsenal quarter
+	     (Chris, 2026-08-02, replacing "Build 2 Blacksmiths").
+	     Two buildings share one urban tile in Civ 7, so this is a placement puzzle rather than a
+	     count: weapons and soldiers in one district. Thematically it is the node's own subject -
+	     Iron Working unlocks the Horseman and the Phalanx - expressed as infrastructure.
+	     Not circular, and both are long available by 738: the Blacksmith comes from Military
+	     Training (430), the Barracks from Bronze Working (255). Neither is Iron Working's own
+	     unlock, which is what made the old "2 Blacksmiths" deed thematically borrowed as well as dull.
+	     Shape: a plot sub-set with PLOT_HAS_CONSTRUCTIBLE twice - the same mechanism Exploration's
+	     Education uses for its Observatory, proven in-game 2026-08-02. -->
+	<Modifier id="ENI_MARK_IRON_WORKING" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_PLOT_YIELDS</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_ARSENAL</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_AQ_IRON_WORKING</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Public Life: a Monument in EVERY settlement (Chris, 2026-08-04, replacing "8 Urban
+	     Population in one settlement").
+	     WHY THE OLD ONE WENT: it fired, but a population threshold is neither distinctive nor
+	     interesting - Chris's read after the full Antiquity pass. A raised number would not have
+	     fixed that.
+	     WHY A MONUMENT: it is the civic marker of a community - CULTURE + DIPLOMACY + URBANCENTER -
+	     which is what public life IS. Unused by any other deed, and cheap at 90 so a Town can buy
+	     one. Considered and rejected: Market (historically the truest - the agora WAS the
+	     marketplace - but tagged Gold/Trade, and Commerce sits in the same tree), Garden (reads as
+	     leisure), Altar (religion, which Mysticism owns AND is this node's prereq), Amphitheater
+	     (unlocked by Engineering, far too late for a 245 civic).
+	     WHY EVERY SETTLEMENT, not a count: a flat build count is the family this Age's pass spent
+	     the day cutting. ALL_MET scales with the empire - founding a new settlement un-lights it
+	     until that one has its Monument too - and it is the one proven shape Antiquity did not use
+	     (Feudalism in EX, Militarism and Socialism in MO).
+	     Not circular: Monument comes from MASONRY, a 125 tech; this is a 245 civic. Public Life's
+	     own unlocks are the Oracle, City Guard and Annona, none of which is involved.
+	     No Town exemption is needed here, unlike the walls deeds: a Monument is an urban-centre
+	     building a Town can hold, so "every settlement" means exactly that. The COUNT_ATLEAST 1 is
+	     the guard against an empire with no settlements passing vacuously.
+
+	     KNOWN AND ACCEPTED (Chris, 2026-08-04): ALL_MET is easiest for the SMALLEST empire, so a
+	     player could sit on one settlement, build one Monument, bank the boost - the marker is
+	     run-once, so expanding afterwards cannot revoke it - and only then expand. Unlike Feudalism
+	     and Militarism, which exempt Towns and so charge a wide player more, this deed charges a
+	     small empire least.
+	     DELIBERATELY NOT PLUGGED. Chris's call: holding at one settlement long enough to research
+	     Masonry (which unlocks the Monument) and then Public Life at 245 costs far more than a 245
+	     civic's boost is worth - on Deity that player is simply behind. The exploit taxes itself.
+	     A floor ("at least 3 settlements have a Monument") was considered and rejected as solving a
+	     problem the difficulty already solves. -->
+	<Modifier id="ENI_MARK_PUBLIC_LIFE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_ALL_MET">
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_MONUMENT</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_MONUMENT</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_PUBLIC_LIFE</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Code of Laws: Have 2 Friendly relationships -->
+	<Modifier id="ENI_MARK_CODE_OF_LAWS" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_X_RELATIONSHIPS">
+				<Argument name="DiplomacyPlayerRelationships">PLAYER_RELATIONSHIP_FRIENDLY</Argument>
+				<Argument name="Amount">2</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_CODE_OF_LAWS</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Entertainment: Build a Villa or an Arena (Chris 2026-08-01). Arena alone was
+	     mispriced - it unlocks from Military Training (430 tech) for a 450 civic; Villa
+	     comes from The Wheel (245). TEST_ANY = either satisfies; no GAME_IS_STARTED inside
+	     an OR-set (it would always pass). -->
+	<Modifier id="ENI_MARK_ENTERTAINMENT" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements type="REQUIREMENTSET_TEST_ANY">
+			<Requirement type="REQUIREMENT_PLAYER_BUILT_CONSTRUCTIBLE_TYPE">
+				<Argument name="ConstructibleType">BUILDING_VILLA</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_PLAYER_BUILT_CONSTRUCTIBLE_TYPE">
+				<Argument name="ConstructibleType">BUILDING_ARENA</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_ENTERTAINMENT</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Citizenship: Build a Wonder (Chris, 2026-08-02, replacing "Grow a City to 15 total Population").
+	     Why the old deed went: it was the THIRD population deed and it swallowed the other two - a city
+	     at 15 total Population has almost certainly passed Irrigation's 6 Rural and Public Life's 6 Urban,
+	     so it asked for nothing they had not already asked.
+	     Why a Wonder: nothing else in the mod requires one, so it opens a category rather than shuffling
+	     an existing shape, and 375-450 production in Antiquity is a real commitment. Thematically it is
+	     civic pride made permanent - the node's own traditions are Drama and Poetry, Castes, Hospitality.
+	     Why ANY Wonder rather than a Culture one: wonders carry no CULTURE tag, so a culture-specific
+	     deed would have to enumerate ids - and every future DLC wonder would then silently fail to count,
+	     the same hidden exclusion that broke Discipline for civs with unique units. This form is dynamic
+	     by construction. It also removes the wonder-race denial risk: with 23 Antiquity wonders you build
+	     whichever you can win, instead of racing for one of only four.
+	     OriginalConstructor=true means YOU built it - capturing someone else's does not count. -->
+	<Modifier id="ENI_MARK_CITIZENSHIP" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_X_WONDERS">
+				<Argument name="Count">1</Argument>
+				<Argument name="RequiresCurrentAge">true</Argument>
+				<Argument name="OriginalConstructor">true</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_CITIZENSHIP</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Organized Military: Defeat 4 units of a major civilization while under your Commander's
+	     command (Chris, 2026-08-02, replacing "Build 2 Barracks").
+	     Why the old deed went: it was one of seven identical "build N of a thing" deeds, and nothing
+	     about owning two buildings says ORGANIZED military.
+	     KillingUnitInCommandRadius describes the KILLING unit - yours - so this reads "your unit was
+	     inside your Commander's radius when it made the kill". (The payload carries a separate
+	     DyingUnitInCommandRadius for the other side, which confirms the reading.) That makes it the
+	     only deed in the mod that teaches the Commander mechanic: a mob versus an army.
+	     Deliberately keeps IsDyingMinorPlayer=False so it stays the major-civ war deed, while Tactics
+	     moved to the target's CLASS (3 Ranged) and Discipline to Independents. Three combat deeds,
+	     three different axes - owner, class, and the killer's position.
+	     Not circular: Commanders come from Discipline (125); this node is 450. -->
+	<Modifier id="ENI_MARK_ORG_MILITARY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,IsDyingMinorPlayer,False,Hash,KillingUnitInCommandRadius,True</Argument>
+				<Argument name="DuplicateCount">4</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_ORG_MILITARY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Literacy: Slot 5 Codices -->
+	<Modifier id="ENI_MARK_LITERACY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_X_GREAT_WORKS">
+				<Argument name="Count">5</Argument>
+				<Argument name="ObjectType">GREATWORKOBJECT_WRITING</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_LITERACY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Skilled Trades: Assign 5 Resources to one City -->
+	<Modifier id="ENI_MARK_SKILLED_TRADES" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_ANY_MET">
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_SKILLED_TRADES</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_SKILLED_TRADES</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Philosophy: Have an Ecstatic City (Chris, 2026-08-02, replacing "Build an Academy").
+	     Why the old deed went: it was the weakest of the build-count family - a SINGLE building at the
+	     joint-highest cost in the Age, and 7 of Antiquity's 23 deeds were already "build N of a thing".
+	     Why happiness: Philosophy closes the Antiquity civic tree, so it wants a capstone, and its own
+	     tradition POIEISIS pays Culture per Great Work only while the settlement is Joyous or ECSTATIC -
+	     the deed therefore teaches the player to set up the reward they are about to unlock. Nothing
+	     else in the mod touches happiness, and it is core mechanics, so no DLC can erode it.
+	     The stage ladder is HAPPY at 0 surplus, JOYOUS at +20, ECSTATIC at +40: "Happy" would have asked
+	     for nothing (most settlements sit at 0+), which is why the bar is the top of the ladder.
+	     CITY_IS_CITY is deliberate - without it an incidental Town would qualify.
+	     Its other themes were unavailable: specialists belong to Mathematics, and Great Works to
+	     Literacy, which is Philosophy's own prereq and would nest. Angkor Wat is its own unlock. -->
+	<Modifier id="ENI_MARK_PHILOSOPHY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_ECSTATIC_CITY</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_PHILOSOPHY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Commerce: trade with 3 DIFFERENT partners (Chris, 2026-08-04).
+	     WHY IT CHANGED: the deed text always said "3 different civilizations", but the old
+	     requirement (PLAYER_HAS_X_TRADE_ROUTES_WITH_PLAYER, AllPlayers=true) counts ROUTES, not
+	     partners - three routes to the same neighbour already passed. Chris also found city-states
+	     count, which the wording denied.
+	     REQUIREMENT_PLAYER_TRADES_WITH_X_PLAYERS is the distinct-partner form, shipped at Amount=3.
+	     ⚠ CITY-STATES DO NOT COUNT - MEASURED, not inferred (2026-08-04). Both of us believed they
+	     did, and the deed text briefly said so. The engine's own counter says otherwise: the base
+	     game's REQ_PLAYER_HAS_3_NAVAL_TRADE_ROUTES is this same requirement family with
+	     AllPlayers="true", and with THREE active sea routes - one to a major civ, two to city-states
+	     - Game.Unlocks.getProgressForPlayer reported 1/3. So "AllPlayers" means across all MAJOR
+	     players, not including independents. The text says "civilizations" because that is what it
+	     counts.
+	     ⚠ This is HARDER than the bar Commerce already cleared in play: three simultaneous routes to
+	     three SEPARATE major civilizations, where the old one accepted three routes to the same
+	     neighbour. KEPT AT 3 anyway (Chris, 2026-08-04): Commerce is a late Antiquity civic, so the
+	     window is long enough to have met three civs and hold routes to all of them. Dropping to 2
+	     was offered and declined. -->
+	<Modifier id="ENI_MARK_COMMERCE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_TRADES_WITH_X_PLAYERS">
+				<Argument name="Amount">3</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_COMMERCE</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Navigation: a settlement with 6 Coast tiles, a Harbor AND a Fishing Quay - a true fishing
+	     port (Chris, 2026-08-02, replacing "Build Harbors in 2 settlements").
+	     Why the old deed went: the Harbor is a cheap ageless building, so "build two" asked almost
+	     nothing - and it BORROWED the Harbor from Sailing, the same thematic slip Engineering and
+	     Iron Working had.
+	     Why this works: the buildings are cheap, but SIX COAST TILES IN ONE SETTLEMENT is a founding
+	     decision, not a build order - you had to settle a real bay or peninsula. The buildings then
+	     prove you committed that site to the sea rather than merely touching water.
+	     Navigation's own unlocks are all circular (Lighthouse, Quadrireme, Chart the Stars,
+	     Ha'amonga 'a Maui), and the obvious exploration angles are Triumphs already: 4 naval units,
+	     circumnavigation, 33% of plots revealed, all homeland natural wonders improved.
+	     SCOPE LIMIT worth knowing: the three conditions are bound to the same CITY, not the same
+	     TILE. A same-tile quarter would need PLOT_HAS_CONSTRUCTIBLE, which cannot be nested inside a
+	     city-scoped terrain check - and binding the buildings to a tile would then let the 6 coast
+	     tiles float to a different settlement entirely, which is worse. Both buildings CAN share a
+	     tile (each is valid on DISTRICT_URBAN and DISTRICT_CITY_CENTER); the deed simply does not
+	     require it. -->
+	<Modifier id="ENI_MARK_NAVIGATION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_FISHING_SETTLEMENT</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_AQ_NAVIGATION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Engineering: Build 2 Baths, each with an adjacency bonus of 4+ (Chris, 2026-08-02).
+	     The old deed was "Build Baths in 2 settlements" - one of seven identical build-count deeds,
+	     and boring because ANY two Baths counted, which you would build anyway.
+	     The COUNT is kept deliberately: a Bath is 180 production and Engineering is a 430 node, so
+	     one cheap building is under-priced for it - that was the original design's logic and it holds.
+	     What changes is that both must be SITED: a Bath's adjacencies are CoastFood, RiverFood and
+	     WonderFood at +1 per adjacent tile, so an adjacency bar IS a minimum food yield, and it
+	     encodes something true - a bathhouse needs water. 4 means four of six neighbours must be
+	     coast, navigable river or a Wonder.
+	     Why 4 and not 3: the Bazaar has the identical source pattern and 3 was earned on turn 1 in
+	     play, which is why Exploration's Guilds was raised to 5.
+	     ONE Bath, not two (Chris, 2026-08-04, from play). The deed fired at two, so the mechanism is
+	     proven - but reaching +4 twice meant ringing the second Bath with WONDERS even on good
+	     coast and river ground. That is a wonder-placement puzzle, not an engineering one, and it
+	     made a mid-tree tech cost more than the nodes above it. A single well-sited Bath already
+	     asks for the thing the deed is about.
+	     The Numeric adjacency filter itself is proven in-game (Guilds, 2026-08-02, and Engineering
+	     itself 2026-08-04). -->
+	<Modifier id="ENI_MARK_ENGINEERING" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,BUILDING_BATH,Numeric,AdjacencyBonus,4</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_AQ_ENGINEERING</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Mathematics: Have a Specialist on a tile with a Library -->
+	<Modifier id="ENI_MARK_MATHEMATICS" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">2</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_PLOT_YIELDS</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_MATHEMATICS</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_AQ_MATHEMATICS</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Story-delivered markers (Wheel, Mysticism, Discipline, Tactics): no requirements
+	     here - the story's polled completion set is the gate; its reward attaches these.
+	     NOT in ENI_ATTACH_ALL. -->
+	<Modifier id="ENI_MARK_WHEEL" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<Argument name="Key">ENI_BOOST_NODE_TECH_AQ_WHEEL</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MARK_MYSTICISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_MYSTICISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MARK_DISCIPLINE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_DISCIPLINE</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MARK_TACTICS" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_TACTICS</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- One attach wrapper PER DEED PAIR - the exact probe-C shape (2-item comma list,
+	     in-game proven). A single 38-id list silently failed to attach anything: story
+	     deeds fired, every direct deed stayed dead (2026-08-01 field result). Keep the
+	     lists at 2 ids. Story-delivered pairs (Wheel/Mysticism/Discipline/Tactics) are
+	     attached by their story rewards - never listed here. -->
+	<Modifier id="ENI_ATTACH_WRITING" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_WRITING, ENI_BOOST_WRITING</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_IRRIGATION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_IRRIGATION, ENI_BOOST_IRRIGATION</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_MASONRY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_MASONRY, ENI_BOOST_MASONRY</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_CURRENCY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_CURRENCY, ENI_BOOST_CURRENCY</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_BRONZE_WORKING" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_BRONZE_WORKING, ENI_BOOST_BRONZE_WORKING</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_MILITARY_TRAINING" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_MILITARY_TRAINING, ENI_BOOST_MILITARY_TRAINING</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_IRON_WORKING" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_IRON_WORKING, ENI_BOOST_IRON_WORKING</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_PUBLIC_LIFE" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_PUBLIC_LIFE, ENI_BOOST_PUBLIC_LIFE</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_CODE_OF_LAWS" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_CODE_OF_LAWS, ENI_BOOST_CODE_OF_LAWS</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_ENTERTAINMENT" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_ENTERTAINMENT, ENI_BOOST_ENTERTAINMENT</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_CITIZENSHIP" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_CITIZENSHIP, ENI_BOOST_CITIZENSHIP</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_ORG_MILITARY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_ORG_MILITARY, ENI_BOOST_ORG_MILITARY</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_LITERACY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_LITERACY, ENI_BOOST_LITERACY</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_SKILLED_TRADES" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_SKILLED_TRADES, ENI_BOOST_SKILLED_TRADES</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_PHILOSOPHY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_PHILOSOPHY, ENI_BOOST_PHILOSOPHY</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_COMMERCE" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_COMMERCE, ENI_BOOST_COMMERCE</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_NAVIGATION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_NAVIGATION, ENI_BOOST_NAVIGATION</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_ENGINEERING" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_ENGINEERING, ENI_BOOST_ENGINEERING</Argument>
+	</Modifier>
+	<Modifier id="ENI_ATTACH_MATHEMATICS" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MARK_MATHEMATICS, ENI_BOOST_MATHEMATICS</Argument>
+	</Modifier>
+
+	<!-- ============ Irrigation: the nine rural types ============
+	     Each type has TWO run-once modifiers sharing identical requirements: one writes a player
+	     property so the dashboard can show WHICH types you have, one grants the shared narrative
+	     tag the deed counts. The four types with a resource twin list both ids, because a resource
+	     tile creates a DIFFERENT constructible that displays under the base name - a Woodcutter on
+	     Spices is IMPROVEMENT_WOODCUTTER_RESOURCE and would otherwise never count. -->
+	<Modifier id="ENI_AQ_RURAL_FARM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_FARM</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_RURAL_FARM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURALTAG_FARM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_NARRATIVE_TAG" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_FARM</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="NarrativeTagType">NARRATIVE_TAG_ENI_AQ_RURAL_TYPE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURAL_PASTURE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_PASTURE</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_RURAL_PASTURE</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURALTAG_PASTURE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_NARRATIVE_TAG" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_PASTURE</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="NarrativeTagType">NARRATIVE_TAG_ENI_AQ_RURAL_TYPE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURAL_CAMP" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_CAMP</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_RURAL_CAMP</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURALTAG_CAMP" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_NARRATIVE_TAG" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_CAMP</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="NarrativeTagType">NARRATIVE_TAG_ENI_AQ_RURAL_TYPE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURAL_PLANTATION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_PLANTATION</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_RURAL_PLANTATION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURALTAG_PLANTATION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_NARRATIVE_TAG" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_PLANTATION</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="NarrativeTagType">NARRATIVE_TAG_ENI_AQ_RURAL_TYPE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURAL_WOODCUTTER" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01,GOSSIP_CONSTRUCT_BUILDING02</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_WOODCUTTER</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING02">Hash,ConstructibleType,IMPROVEMENT_WOODCUTTER_RESOURCE</Argument>
+				<Argument name="Amount">1</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_RURAL_WOODCUTTER</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURALTAG_WOODCUTTER" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_NARRATIVE_TAG" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01,GOSSIP_CONSTRUCT_BUILDING02</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_WOODCUTTER</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING02">Hash,ConstructibleType,IMPROVEMENT_WOODCUTTER_RESOURCE</Argument>
+				<Argument name="Amount">1</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="NarrativeTagType">NARRATIVE_TAG_ENI_AQ_RURAL_TYPE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURAL_MINE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01,GOSSIP_CONSTRUCT_BUILDING02</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_MINE</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING02">Hash,ConstructibleType,IMPROVEMENT_MINE_RESOURCE</Argument>
+				<Argument name="Amount">1</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_RURAL_MINE</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURALTAG_MINE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_NARRATIVE_TAG" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01,GOSSIP_CONSTRUCT_BUILDING02</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_MINE</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING02">Hash,ConstructibleType,IMPROVEMENT_MINE_RESOURCE</Argument>
+				<Argument name="Amount">1</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="NarrativeTagType">NARRATIVE_TAG_ENI_AQ_RURAL_TYPE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURAL_QUARRY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_QUARRY</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_RURAL_QUARRY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURALTAG_QUARRY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_NARRATIVE_TAG" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_QUARRY</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="NarrativeTagType">NARRATIVE_TAG_ENI_AQ_RURAL_TYPE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURAL_CLAY_PIT" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01,GOSSIP_CONSTRUCT_BUILDING02</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_CLAY_PIT</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING02">Hash,ConstructibleType,IMPROVEMENT_CLAY_PIT_RESOURCE</Argument>
+				<Argument name="Amount">1</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_RURAL_CLAY_PIT</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURALTAG_CLAY_PIT" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_NARRATIVE_TAG" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01,GOSSIP_CONSTRUCT_BUILDING02</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_CLAY_PIT</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING02">Hash,ConstructibleType,IMPROVEMENT_CLAY_PIT_RESOURCE</Argument>
+				<Argument name="Amount">1</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="NarrativeTagType">NARRATIVE_TAG_ENI_AQ_RURAL_TYPE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURAL_FISHING_BOAT" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01,GOSSIP_CONSTRUCT_BUILDING02</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_FISHING_BOAT</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING02">Hash,ConstructibleType,IMPROVEMENT_FISHING_BOAT_RESOURCE</Argument>
+				<Argument name="Amount">1</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_RURAL_FISHING_BOAT</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_RURALTAG_FISHING_BOAT" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_NARRATIVE_TAG" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01,GOSSIP_CONSTRUCT_BUILDING02</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,IMPROVEMENT_FISHING_BOAT</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING02">Hash,ConstructibleType,IMPROVEMENT_FISHING_BOAT_RESOURCE</Argument>
+				<Argument name="Amount">1</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="NarrativeTagType">NARRATIVE_TAG_ENI_AQ_RURAL_TYPE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_RURAL1" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_RURAL_FARM, ENI_AQ_RURAL_PASTURE, ENI_AQ_RURAL_CAMP</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_RURALTAG1" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_RURALTAG_FARM, ENI_AQ_RURALTAG_PASTURE, ENI_AQ_RURALTAG_CAMP</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_RURAL2" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_RURAL_PLANTATION, ENI_AQ_RURAL_WOODCUTTER, ENI_AQ_RURAL_MINE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_RURALTAG2" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_RURALTAG_PLANTATION, ENI_AQ_RURALTAG_WOODCUTTER, ENI_AQ_RURALTAG_MINE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_RURAL3" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_RURAL_QUARRY, ENI_AQ_RURAL_CLAY_PIT, ENI_AQ_RURAL_FISHING_BOAT</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_RURALTAG3" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_RURALTAG_QUARRY, ENI_AQ_RURALTAG_CLAY_PIT, ENI_AQ_RURALTAG_FISHING_BOAT</Argument>
+	</Modifier>
+
+	<!-- ============ step trackers: progress readouts for counted deeds ============
+	     A DuplicateCount deed writes its marker property only on COMPLETION, so the dashboard can
+	     show done / not-done and nothing in between. That bit in play on 2026-08-04: The Wheel
+	     completed with no warning ("triggered somehow"), and Tactics failed at 3 ranged kills with
+	     no way to tell whether it had counted 0, 1 or 2.
+	     Each modifier below is the deed's OWN filter at a LOWER DuplicateCount, writing its own
+	     run-once property. The UI reads them through ENI_MULTIPART in ui/eni-core.js and renders
+	     "N / M". They are inert as gameplay - a property write and nothing else.
+	     The final step is the deed's existing marker property, so no tracker is needed for it. -->
+	<Modifier id="ENI_AQ_STEP_WHEEL_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_GOLDEN_AGE01</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_WHEEL_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_WHEEL_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_GOLDEN_AGE01</Argument>
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_WHEEL_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_ORG_MILITARY_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,IsDyingMinorPlayer,False,Hash,KillingUnitInCommandRadius,True</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_ORG_MILITARY_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_ORG_MILITARY_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,IsDyingMinorPlayer,False,Hash,KillingUnitInCommandRadius,True</Argument>
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_ORG_MILITARY_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_ORG_MILITARY_3" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,IsDyingMinorPlayer,False,Hash,KillingUnitInCommandRadius,True</Argument>
+				<Argument name="DuplicateCount">3</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_ORG_MILITARY_3</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_TACTICS_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,DyingUnitInCommandRadius,True</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_TACTICS_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_CURRENCY_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_RESPONSE01</Argument>
+				<Argument name="GOSSIP_DIPLOMACY_RESPONSE01">Hash,DiplomacyResponseType,DIPLOMACY_RESPONSE_SUPPORT</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_CURRENCY_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_CURRENCY_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_RESPONSE01</Argument>
+				<Argument name="GOSSIP_DIPLOMACY_RESPONSE01">Hash,DiplomacyResponseType,DIPLOMACY_RESPONSE_SUPPORT</Argument>
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_CURRENCY_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_CURRENCY_3" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_RESPONSE01</Argument>
+				<Argument name="GOSSIP_DIPLOMACY_RESPONSE01">Hash,DiplomacyResponseType,DIPLOMACY_RESPONSE_SUPPORT</Argument>
+				<Argument name="DuplicateCount">3</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_CURRENCY_3</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<Modifier id="ENI_AQ_ATTACH_STEPS1" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_STEP_WHEEL_1, ENI_AQ_STEP_WHEEL_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_STEPS2" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_STEP_ORG_MILITARY_1, ENI_AQ_STEP_ORG_MILITARY_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_STEPS3" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_STEP_ORG_MILITARY_3, ENI_AQ_STEP_TACTICS_1</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_STEPS5" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_STEP_CURRENCY_3</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_STEPS4" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_STEP_CURRENCY_1, ENI_AQ_STEP_CURRENCY_2</Argument>
+	</Modifier>
+	<!-- ============== GENERATED: progress trackers ============== -->
+	<!-- Progress trackers: each one is its deed's OWN requirement at a lower threshold,
+	     writing its own key so the dashboard can draw an N / M. GENERATED by
+	     tools/gen-eni-step-trackers.py - the requirement is CLONED from the marker, never retyped,
+	     because a drifted filter counts the wrong thing and reads in-game as a UI bug with no error.
+	     A deed needs only (need - 1) trackers: the last part IS the deed's own marker property.
+	     Wrappers are 2-item comma lists ON PURPOSE - one long list silently attaches NOTHING. -->
+	<Modifier id="ENI_AQ_STEP_WRITING_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_MET_NUM_CIVS">
+					<Argument name="Amount">1</Argument>
+				</Requirement>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+					<Argument name="GossipTypes">GOSSIP_DIPLOMACY_ACTION_STARTED01</Argument>
+					<Argument name="GOSSIP_DIPLOMACY_ACTION_STARTED01">Hash,OtherPlayer,Other,Hash,DiplomacyActionType,DIPLOMACY_ACTION_OPEN_BORDERS</Argument>
+					<Argument name="AfterInit">True</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_WRITING_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_BRONZE_WORKING_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_PRODUCES_AT_LEAST_X_RESOURCE">
+					<Argument name="ResourceType">RESOURCE_IRON</Argument>
+					<Argument name="Amount">1</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_BRONZE_WORKING_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_LITERACY_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_GREAT_WORKS">
+					<Argument name="Count">1</Argument>
+					<Argument name="ObjectType">GREATWORKOBJECT_WRITING</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_LITERACY_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_LITERACY_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_GREAT_WORKS">
+					<Argument name="Count">2</Argument>
+					<Argument name="ObjectType">GREATWORKOBJECT_WRITING</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_LITERACY_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_LITERACY_3" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_GREAT_WORKS">
+					<Argument name="Count">3</Argument>
+					<Argument name="ObjectType">GREATWORKOBJECT_WRITING</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_LITERACY_3</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_LITERACY_4" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_GREAT_WORKS">
+					<Argument name="Count">4</Argument>
+					<Argument name="ObjectType">GREATWORKOBJECT_WRITING</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_LITERACY_4</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_COMMERCE_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_TRADES_WITH_X_PLAYERS">
+					<Argument name="Amount">1</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_COMMERCE_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_COMMERCE_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_TRADES_WITH_X_PLAYERS">
+					<Argument name="Amount">2</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_COMMERCE_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_MATHEMATICS_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+					<Argument name="Count">1</Argument>
+					<Argument name="CollectionType">COLLECTION_PLAYER_PLOT_YIELDS</Argument>
+					<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_MATHEMATICS</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_MATHEMATICS_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_STEPS6" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_STEP_WRITING_1</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_STEPS7" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_STEP_BRONZE_WORKING_1</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_STEPS8" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_STEP_LITERACY_1, ENI_AQ_STEP_LITERACY_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_STEPS9" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_STEP_LITERACY_3, ENI_AQ_STEP_LITERACY_4</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_STEPS10" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_STEP_COMMERCE_1, ENI_AQ_STEP_COMMERCE_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_ATTACH_STEPS11" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_AQ_STEP_MATHEMATICS_1</Argument>
+	</Modifier>
+	<!-- ============ END GENERATED: progress trackers ============ -->
+</GameEffects>

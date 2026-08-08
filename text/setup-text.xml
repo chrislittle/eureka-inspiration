@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+	<EnglishText>
+		<Row Tag="LOC_ENI_GROUP_NAME"><Text>Eureka &amp; Inspiration</Text></Row>
+		<Row Tag="LOC_ENI_BOOST_LEVEL"><Text>Boost size</Text></Row>
+		<Row Tag="LOC_ENI_BOOST_LEVEL_DESC"><Text>The share of a Technology's or Civic's research a completed deed pre-pays.</Text></Row>
+		<Row Tag="LOC_ENI_BOOST_10"><Text>10%</Text></Row>
+		<Row Tag="LOC_ENI_BOOST_20"><Text>20%</Text></Row>
+		<Row Tag="LOC_ENI_BOOST_30"><Text>30%</Text></Row>
+		<Row Tag="LOC_ENI_BOOST_40"><Text>40% (default)</Text></Row>
+	</EnglishText>
+</Database>

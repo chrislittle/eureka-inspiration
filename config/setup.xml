@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+	<!-- BOOST SIZE: one `< >` cycler.
+	     ⚠ THE VALUES MUST BE STRINGS. Measured 2026-08-06 by eni-cfg-litmus, six variants in one
+	     game: ConfigurationValueMatches in a modinfo criteria matches a STRING or a BOOLEAN and
+	     never a NUMBER. A numeric value failed across a custom DomainValues list at Hash="0", the
+	     same list at Hash="1", and a primitive uint; the bool and the string domain both matched.
+	     Domain and Hash are irrelevant - the stored value TYPE is everything.
+	     This is why the original selector, whose DomainValues were bare numbers (10/20/30/40),
+	     silently did nothing in every game since it shipped: the player picked a percentage and
+	     always got 40, with no error anywhere.
+	     The key is deliberately NOT the old `EniBoostSize`. That key may still hold a stale numeric
+	     value in a player's saved setup, which would never match and would resurrect the same bug.
+	     PLACEMENT - its own ParameterGroups block, and SortIndex BELOW 10. Measured live on the
+	     Create Game screen 2026-08-06 (GameSetup.getGameParameters() probe). The rule:
+	     advanced-options-base.js walks the parameter list in SortIndex order and opens a collapsible
+	     block the FIRST time it meets a GroupId; every later row of that group is appended into the
+	     block already open, wherever that block sits. So a group's position is its LOWEST-indexed
+	     parameter, and for a one-row group like this one, SortIndex IS the block position.
+	     At SortIndex 200 this block rendered under MAP SETTINGS - not because 200 is high (MapSize is
+	     1030) but because MapOptions is opened by StartPosition at a much lower index, and the 1000+
+	     map rows then pile into that already-open block above us. 5 puts us above Ruleset and
+	     LegacySets, both 10, which are the earliest base parameters.
+	     LOC_ENI_GROUP_NAME must ship in the same scope="shell" UpdateText as the option labels - an
+	     unresolved group name renders an EMPTY header, not a fallback.
+	     Exclusivity is now free: a cycler holds one value, so no ParameterDependencies are needed.
+	     ⛔ And do NOT add any. Tried on 2026-08-06 with the interim four-checkbox build and all four
+	     options VANISHED from the setup screen; the litmus parameters, identical but for having no
+	     dependencies, still rendered in that same game. -->
+	<ParameterGroups>
+		<Row GroupId="EniOptions" Name="LOC_ENI_GROUP_NAME"/>
+	</ParameterGroups>
+	<Parameters>
+		<Row ParameterID="EniBoostLevel" Name="LOC_ENI_BOOST_LEVEL" Description="LOC_ENI_BOOST_LEVEL_DESC" Domain="EniBoostLevels" DefaultValue="ENI_BOOST_40" Hash="0" ConfigurationGroup="Game" ConfigurationKey="EniBoostLevel" GroupId="EniOptions" SortIndex="5"/>
+	</Parameters>
+	<!-- No Description on the value rows on purpose. The setup tooltip concatenates the PARAMETER's
+	     description with the SELECTED VALUE's, so pointing both at the same LOC tag printed the same
+	     sentence twice. Description is optional here - base precedent: StandardMementoSlots/NONE. -->
+	<DomainValues>
+		<Row Domain="EniBoostLevels" Value="ENI_BOOST_10" Name="LOC_ENI_BOOST_10" SortIndex="10"/>
+		<Row Domain="EniBoostLevels" Value="ENI_BOOST_20" Name="LOC_ENI_BOOST_20" SortIndex="20"/>
+		<Row Domain="EniBoostLevels" Value="ENI_BOOST_30" Name="LOC_ENI_BOOST_30" SortIndex="30"/>
+		<Row Domain="EniBoostLevels" Value="ENI_BOOST_40" Name="LOC_ENI_BOOST_40" SortIndex="40"/>
+	</DomainValues>
+</Database>

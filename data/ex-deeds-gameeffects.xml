@@ -1,0 +1,1078 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameEffects xmlns="GameEffects">
+	<!-- EXPLORATION deed engine: all 22 boostable nodes.
+	     Same proven shape as Antiquity - a marker + a boost per deed, both carrying identical
+	     inline SubjectRequirements, attached to every major player by a per-deed wrapper, and
+	     switched on by the GameModifiers rows in ex-deeds-bind.xml.
+
+	     Two things Antiquity taught us are applied throughout:
+	       * GOSSIP requirements work in DIRECT modifiers (the 9-slot litmus proved it), so
+	         nothing here needs a narrative story.
+	       * AfterInit="True" scopes an event count to THIS AGE, which is what keeps a carried
+	         empire from pre-satisfying anything.
+	     The six entry-tier nodes (525 techs, 700 civics) are deliberately unboosted: they are
+	     researched in the opening turns, so no deed could be earned in time. -->
+
+	<!-- ============ shared sub-sets (city / plot scoped) ============ -->
+	<!-- Education: a plot holding an Observatory AND at least one assigned Specialist.
+	     One Observatory per settlement, so 3 such plots = 3 settlements. -->
+	<RequirementSet id="SUBREQSET_ENI_EX_EDUCATION">
+		<Requirement type="REQUIREMENT_PLOT_HAS_CONSTRUCTIBLE">
+			<Argument name="ConstructibleType">BUILDING_OBSERVATORY</Argument>
+		</Requirement>
+		<Requirement type="REQUIREMENT_PLOT_HAS_X_WORKER_POPULATION">
+			<Argument name="MinWorkerPopulation">1</Argument>
+		</Requirement>
+	</RequirementSet>
+	<!-- Urban Planning: a settlement that is a City AND whose buildings are all from this Age.
+	     A carried Antiquity settlement keeps Antiquity buildings and fails; an advanced start
+	     fails too (its cities are granted Ancient Walls). -->
+	<RequirementSet id="SUBREQSET_ENI_EX_NEWCITY">
+		<Requirement type="REQUIREMENT_CITY_IS_CITY"/>
+		<Requirement type="REQUIREMENT_CITY_HAS_ONLY_BUILDINGS_FROM_THIS_AGE"/>
+	</RequirementSet>
+
+	<!-- "every settlement is a Town, or a City that has Medieval Walls" -->
+	<RequirementSet id="SUBREQSET_ENI_EX_WALLED" type="REQUIREMENTSET_TEST_ANY">
+		<Requirement type="REQUIREMENT_CITY_IS_TOWN"/>
+		<Requirement type="REQUIREMENT_CITY_HAS_BUILDING">
+			<Argument name="BuildingType">BUILDING_MEDIEVAL_WALLS</Argument>
+		</Requirement>
+	</RequirementSet>
+	<!-- the guard: at least one real walled City, so an all-Town empire cannot pass vacuously -->
+	<RequirementSet id="SUBREQSET_ENI_EX_WALLEDCITY">
+		<Requirement type="REQUIREMENT_CITY_IS_CITY"/>
+		<Requirement type="REQUIREMENT_CITY_HAS_BUILDING">
+			<Argument name="BuildingType">BUILDING_MEDIEVAL_WALLS</Argument>
+		</Requirement>
+	</RequirementSet>
+
+	<!-- ============ TECHS ============ -->
+
+	<!-- Feudalism: Medieval Walls in EVERY City (Chris, 2026-08-02).
+	     The lord fortifies every seat of his realm - and the ask scales with the empire rather
+	     than being a flat count, so a wide player walls more.
+	     Why this subject survives where the old one did not: BUILDING_MEDIEVAL_WALLS is
+	     Age="AGE_EXPLORATION" (an Antiquity empire cannot hold one at the flip) and
+	     Purchasable="false" (it must be PRODUCED). The advanced-start card grants
+	     BUILDING_ANCIENT_WALLS, an Antiquity building, so the placement phase cannot pre-fill this
+	     the way it pre-filled the rural-improvement count - twice.
+	     Not circular: walls come from CASTLES, a parallel 870 branch (Feudalism sits behind
+	     Cartography/Astronomy, Castles behind Machinery), so neither node gates the other.
+	     The TEST_ANY sub-set reads "every settlement is either a Town, or a City with Walls"; the
+	     second requirement is the guard against the vacuous case of owning no Cities at all. -->
+	<Modifier id="ENI_EX_MARK_FEUDALISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_ALL_MET">
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_EX_WALLED</Argument>
+			</Requirement>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">1</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_EX_WALLEDCITY</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_FEUDALISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Guilds: a Bazaar sited for 5+ adjacency. Each source pays PER ADJACENT TILE
+	     (CoastGold / RiverGold / WonderGold are all YieldChange=1 TilesRequired=1), so five
+	     coastal neighbours - or a mix of coast, navigable river and an adjacent Wonder - reaches
+	     it. Proven in-game 2026-08-02: the event compares the SUMMED adjacency, not the highest
+	     single source, and a PURCHASED building fires the construct event just as a produced one
+	     does. Raised 3 -> 5 (Chris) because 3 was earned on turn 1 of the test run. -->
+	<Modifier id="ENI_EX_MARK_GUILDS" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONSTRUCT_BUILDING01</Argument>
+				<Argument name="GOSSIP_CONSTRUCT_BUILDING01">Hash,ConstructibleType,BUILDING_BAZAAR,Numeric,AdjacencyBonus,5</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_GUILDS</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Castles: one Fort Town. Specialisations are exclusive and permanent, and need pop 7. -->
+	<Modifier id="ENI_EX_MARK_CASTLES" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_X_TOWNS_PRODUCING_PROJECT">
+				<Argument name="ProjectType">PROJECT_TOWN_FORT</Argument>
+				<Argument name="Count">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_CASTLES</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Heraldry: train 3 Cavalry units this Age (ANY cavalry - the training event carries a
+	     Cavalry flag; the kill event does not, which is why this is a training deed). -->
+	<Modifier id="ENI_EX_MARK_HERALDRY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_TRAIN_UNIT01</Argument>
+				<Argument name="GOSSIP_TRAIN_UNIT01">Hash,CavalryUnit,True</Argument>
+				<Argument name="DuplicateCount">3</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_HERALDRY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Education: a Specialist on an Observatory tile in 3 settlements. -->
+	<Modifier id="ENI_EX_MARK_EDUCATION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">3</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_PLOT_YIELDS</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_EX_EDUCATION</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_EDUCATION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Metallurgy: train 3 Crossbowmen this Age (Crossbowman comes from Castles, 870). -->
+	<Modifier id="ENI_EX_MARK_METALLURGY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_TRAIN_UNIT01</Argument>
+				<Argument name="GOSSIP_TRAIN_UNIT01">Hash,UnitType,UNIT_CROSSBOWMAN</Argument>
+				<Argument name="DuplicateCount">3</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_METALLURGY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<!-- Metallurgy, unique-unit path: Mongolia's Keshig and the Inca Waraq'aq REPLACE the
+	     Crossbowman, so their players can never train the base unit. Same requirement with
+	     UnitTypeReplaces. A separate modifier rather than extra slots, because DuplicateCount is
+	     documented for a SINGLE gossip type - and the two paths are mutually exclusive per civ,
+	     so only one can ever fire. -->
+	<Modifier id="ENI_EX_MARK_METALLURGY_UNIQUE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_TRAIN_UNIT01</Argument>
+				<Argument name="GOSSIP_TRAIN_UNIT01">Hash,UnitTypeReplaces,UNIT_CROSSBOWMAN</Argument>
+				<Argument name="DuplicateCount">3</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_METALLURGY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Shipbuilding: defeat 5 units AT SEA this Age (marine biome = the combat tile). -->
+	<Modifier id="ENI_EX_MARK_SHIPBUILDING" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,BiomeType,BIOME_MARINE</Argument>
+				<Argument name="DuplicateCount">5</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_SHIPBUILDING</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Architecture: Kilns in 3 settlements (Kiln = the age's Culture building, from Guilds). -->
+	<Modifier id="ENI_EX_MARK_ARCHITECTURE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+				<Argument name="BuildingType">BUILDING_KILN</Argument>
+				<Argument name="Amount">3</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_ARCHITECTURE</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Metal Casting: Armorers in 2 settlements (Armorer from Metallurgy, 1300). -->
+	<Modifier id="ENI_EX_MARK_METAL_CASTING" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+				<Argument name="BuildingType">BUILDING_ARMORER</Argument>
+				<Argument name="Amount">2</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_METAL_CASTING</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Gunpowder: defeat 12 units ON ENEMY SOIL this Age. IsDyingUnitPlotOwner=True means the
+	     dying unit stood on land its own owner holds, so only an invader can earn this. -->
+	<Modifier id="ENI_EX_MARK_GUNPOWDER" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,IsDyingUnitPlotOwner,True</Argument>
+				<Argument name="DuplicateCount">12</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_GUNPOWDER</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Urban Planning: 2 Cities founded this Age. -->
+	<Modifier id="ENI_EX_MARK_URBAN_PLANNING" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+				<Argument name="Count">2</Argument>
+				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_EX_NEWCITY</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_TECH_EX_URBAN_PLANNING</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- ============ CIVICS ============ -->
+
+	<!-- Reformation (branch): Temples in 3 settlements (Temple from Piety, 700). -->
+	<Modifier id="ENI_EX_MARK_REFORMATION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+				<Argument name="BuildingType">BUILDING_TEMPLE</Argument>
+				<Argument name="Amount">3</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_EX_BRANCH_REFORMATION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Authority: levy 2 units from City-States this Age. The crown commanding its vassals. -->
+	<Modifier id="ENI_EX_MARK_AUTHORITY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_ACTION_STARTED01</Argument>
+				<Argument name="GOSSIP_DIPLOMACY_ACTION_STARTED01">Hash,DiplomacyActionType,DIPLOMACY_ACTION_CS_LEVY_UNIT</Argument>
+				<!-- Two levy ACTIONS, which may be the same City-State twice - the count cannot be
+				     constrained to distinct or to particular City-States. Every shipped filter string for
+				     this gossip uses only DiplomacyActionType / DiplomacyActionGroup / OtherPlayer, and
+				     OtherPlayer takes Self or Other, never an identity; DuplicateCount counts occurrences,
+				     not distinct subjects. There is no levy-counting requirement either. Two actions is
+				     the right ask anyway: it costs Influence twice and does not depend on how many
+				     City-States the map happened to give you. -->
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_EX_MAIN_AUTHORITY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Inspiration: earn 3 Relics (Exploration's own great-work object, so nothing carries). -->
+	<Modifier id="ENI_EX_MARK_INSPIRATION" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_X_GREAT_WORKS">
+				<Argument name="Count">2</Argument>
+				<Argument name="ObjectType">GREATWORKOBJECT_RELIC</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_EX_MAIN_INSPIRATION</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Mercantilism: begin 2 Endeavors with another civilization this Age. -->
+	<Modifier id="ENI_EX_MARK_MERCANTILISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_ACTION_STARTED01</Argument>
+				<!-- Counts the endeavor ACTION, at any response level - confirmed in play 6 Aug: merely
+				     ACCEPTING an endeavor fires it, not just choosing Support. That is deliberate. AQ's
+				     Currency is the support-level deed (GOSSIP_DIPLOMACY_RESPONSE01 filtered on
+				     DIPLOMACY_RESPONSE_SUPPORT), and Support costs far more Influence than Accept, so
+				     the two deeds are not interchangeable and must not both read the same event.
+				     Mercantilism is a very early Exploration civic - a small node, a small boost, so a
+				     cheap deed is correct here. It cannot be tightened anyway: every shipped filter for
+				     this gossip uses OtherPlayer with Self or Other and never an identity, and there is
+				     no precedent at all for requiring that YOU initiated. -->
+				<Argument name="GOSSIP_DIPLOMACY_ACTION_STARTED01">Hash,OtherPlayer,Other,Hash,DiplomacyActionGroup,DIPLOMACY_ACTION_GROUP_ENDEAVOR</Argument>
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_EX_MAIN_MERCANTILISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Bureaucracy: build a Minor Embassy (the Diplomatic city-state improvement). -->
+	<Modifier id="ENI_EX_MARK_BUREAUCRACY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+				<Argument name="BuildingType">IMPROVEMENT_MINOR_EMBASSY</Argument>
+				<Argument name="Amount">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_EX_MAIN_BUREAUCRACY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Colonialism: a single Trade Route carrying 7 Resources. -->
+	<Modifier id="ENI_EX_MARK_COLONIALISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_TRADE_ROUTE_HAS_X_RESOURCES">
+				<Argument name="Amount">7</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_EX_MAIN_COLONIALISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Diplomatic Service: form 2 Alliances this Age. -->
+	<Modifier id="ENI_EX_MARK_DIPLOMATIC_SERVICE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_ALLIED01</Argument>
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_EX_MAIN_DIPLOMATIC_SERVICE</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Society: place 10 Specialists this Age. -->
+	<Modifier id="ENI_EX_MARK_SOCIETY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_PLACED_WORKER01</Argument>
+				<Argument name="DuplicateCount">10</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_EX_MAIN_SOCIETY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Imperialism: capture a Capital this Age. -->
+	<Modifier id="ENI_EX_MARK_IMPERIALISM" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_CONQUER_CITY01</Argument>
+				<Argument name="GOSSIP_CONQUER_CITY01">Hash,IsCapital,True</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_EX_MAIN_IMPERIALISM</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Social Class: Taverns in 4 settlements (Tavern from Feudalism, 870). -->
+	<Modifier id="ENI_EX_MARK_SOCIAL_CLASS" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+				<Argument name="BuildingType">BUILDING_TAVERN</Argument>
+				<Argument name="Amount">4</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_EX_MAIN_SOCIAL_CLASS</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Sovereignty: 10 settlements following the religion YOU founded. -->
+	<Modifier id="ENI_EX_MARK_SOVEREIGNTY" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_X_SETTLEMENTS_WITH_RELIGION">
+				<Argument name="OnlyFounded">True</Argument>
+				<Argument name="Amount">10</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_EX_MAIN_SOVEREIGNTY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- ============ attach wrappers: one per deed pair (the proven 2-id shape) ============ -->
+	<Modifier id="ENI_EX_ATTACH_FEUDALISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_FEUDALISM, ENI_EX_BOOST_FEUDALISM</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_GUILDS" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_GUILDS, ENI_EX_BOOST_GUILDS</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_CASTLES" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_CASTLES, ENI_EX_BOOST_CASTLES</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_HERALDRY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_HERALDRY, ENI_EX_BOOST_HERALDRY</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_EDUCATION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_EDUCATION, ENI_EX_BOOST_EDUCATION</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_METALLURGY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_METALLURGY, ENI_EX_BOOST_METALLURGY, ENI_EX_MARK_METALLURGY_UNIQUE, ENI_EX_BOOST_METALLURGY_UNIQUE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_SHIPBUILDING" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_SHIPBUILDING, ENI_EX_BOOST_SHIPBUILDING</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_ARCHITECTURE" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_ARCHITECTURE, ENI_EX_BOOST_ARCHITECTURE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_METAL_CASTING" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_METAL_CASTING, ENI_EX_BOOST_METAL_CASTING</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_GUNPOWDER" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_GUNPOWDER, ENI_EX_BOOST_GUNPOWDER</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_URBAN_PLANNING" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_URBAN_PLANNING, ENI_EX_BOOST_URBAN_PLANNING</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_REFORMATION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_REFORMATION, ENI_EX_BOOST_REFORMATION</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_AUTHORITY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_AUTHORITY, ENI_EX_BOOST_AUTHORITY</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_INSPIRATION" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_INSPIRATION, ENI_EX_BOOST_INSPIRATION</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_MERCANTILISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_MERCANTILISM, ENI_EX_BOOST_MERCANTILISM</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_BUREAUCRACY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_BUREAUCRACY, ENI_EX_BOOST_BUREAUCRACY</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_COLONIALISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_COLONIALISM, ENI_EX_BOOST_COLONIALISM</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_DIPLOMATIC_SERVICE" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_DIPLOMATIC_SERVICE, ENI_EX_BOOST_DIPLOMATIC_SERVICE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_SOCIETY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_SOCIETY, ENI_EX_BOOST_SOCIETY</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_IMPERIALISM" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_IMPERIALISM, ENI_EX_BOOST_IMPERIALISM</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_SOCIAL_CLASS" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_SOCIAL_CLASS, ENI_EX_BOOST_SOCIAL_CLASS</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_SOVEREIGNTY" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_MARK_SOVEREIGNTY, ENI_EX_BOOST_SOVEREIGNTY</Argument>
+	</Modifier>
+
+
+	<!-- ============================ STEP TRACKERS ============================
+	     Encoded 2026-08-06. A counted deed's own marker only flips when the WHOLE count is met, so
+	     the dashboard had nothing partial to read and every Exploration counter sat blank - the same
+	     gap Antiquity closed on 2026-08-04 after The Wheel finished with no warning and Tactics
+	     failed with no way to see whether the filter had counted 0, 1 or 2.
+	     Each tracker is the deed's OWN requirement at a lower DuplicateCount, cloned from the parent
+	     marker by tools/, never retyped - a tracker with a drifted filter would count the wrong
+	     thing and read as a UI bug. A deed needs only (need - 1) trackers: the last part IS the
+	     deed's marker property.
+	     Gunpowder and Society step in BUCKETS (3/6/9) rather than every unit - eleven trackers for
+	     one deed is not worth turning "6 / 12" into "7 / 12".
+	     ⚠ METALLURGY writes each step key from BOTH filters (plain UnitType and UnitTypeReplaces),
+	     because a unique-unit civ never fires the plain one and would otherwise watch the counter sit
+	     at zero for a whole Age while the deed quietly completed. A player is only ever one
+	     civilization, so the two can never double-count. -->
+	<Modifier id="ENI_EX_STEP_GUNPOWDER_3" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,IsDyingUnitPlotOwner,True</Argument>
+				<Argument name="DuplicateCount">3</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_GUNPOWDER_3</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_GUNPOWDER_6" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,IsDyingUnitPlotOwner,True</Argument>
+				<Argument name="DuplicateCount">6</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_GUNPOWDER_6</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_GUNPOWDER_9" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,IsDyingUnitPlotOwner,True</Argument>
+				<Argument name="DuplicateCount">9</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_GUNPOWDER_9</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SOCIETY_3" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_PLACED_WORKER01</Argument>
+				<Argument name="DuplicateCount">3</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SOCIETY_3</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SOCIETY_6" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_PLACED_WORKER01</Argument>
+				<Argument name="DuplicateCount">6</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SOCIETY_6</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SOCIETY_9" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_PLACED_WORKER01</Argument>
+				<Argument name="DuplicateCount">9</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SOCIETY_9</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SHIPBUILDING_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,BiomeType,BIOME_MARINE</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SHIPBUILDING_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SHIPBUILDING_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,BiomeType,BIOME_MARINE</Argument>
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SHIPBUILDING_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SHIPBUILDING_3" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,BiomeType,BIOME_MARINE</Argument>
+				<Argument name="DuplicateCount">3</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SHIPBUILDING_3</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SHIPBUILDING_4" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_UNIT_COMBAT_DEATH01</Argument>
+				<Argument name="GOSSIP_UNIT_COMBAT_DEATH01">Hash,OtherPlayer,Self,Hash,BiomeType,BIOME_MARINE</Argument>
+				<Argument name="DuplicateCount">4</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SHIPBUILDING_4</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_HERALDRY_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_TRAIN_UNIT01</Argument>
+				<Argument name="GOSSIP_TRAIN_UNIT01">Hash,CavalryUnit,True</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_HERALDRY_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_HERALDRY_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_TRAIN_UNIT01</Argument>
+				<Argument name="GOSSIP_TRAIN_UNIT01">Hash,CavalryUnit,True</Argument>
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_HERALDRY_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_METALLURGY_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_TRAIN_UNIT01</Argument>
+				<Argument name="GOSSIP_TRAIN_UNIT01">Hash,UnitType,UNIT_CROSSBOWMAN</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_METALLURGY_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_METALLURGY_1_U" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_TRAIN_UNIT01</Argument>
+				<Argument name="GOSSIP_TRAIN_UNIT01">Hash,UnitTypeReplaces,UNIT_CROSSBOWMAN</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_METALLURGY_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_METALLURGY_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_TRAIN_UNIT01</Argument>
+				<Argument name="GOSSIP_TRAIN_UNIT01">Hash,UnitType,UNIT_CROSSBOWMAN</Argument>
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_METALLURGY_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_METALLURGY_2_U" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_TRAIN_UNIT01</Argument>
+				<Argument name="GOSSIP_TRAIN_UNIT01">Hash,UnitTypeReplaces,UNIT_CROSSBOWMAN</Argument>
+				<Argument name="DuplicateCount">2</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_METALLURGY_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_MERCANTILISM_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_ACTION_STARTED01</Argument>
+				<!-- Counts the endeavor ACTION, at any response level - confirmed in play 6 Aug: merely
+				     ACCEPTING an endeavor fires it, not just choosing Support. That is deliberate. AQ's
+				     Currency is the support-level deed (GOSSIP_DIPLOMACY_RESPONSE01 filtered on
+				     DIPLOMACY_RESPONSE_SUPPORT), and Support costs far more Influence than Accept, so
+				     the two deeds are not interchangeable and must not both read the same event.
+				     Mercantilism is a very early Exploration civic - a small node, a small boost, so a
+				     cheap deed is correct here. It cannot be tightened anyway: every shipped filter for
+				     this gossip uses OtherPlayer with Self or Other and never an identity, and there is
+				     no precedent at all for requiring that YOU initiated. -->
+				<Argument name="GOSSIP_DIPLOMACY_ACTION_STARTED01">Hash,OtherPlayer,Other,Hash,DiplomacyActionGroup,DIPLOMACY_ACTION_GROUP_ENDEAVOR</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_MERCANTILISM_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_DIPLOMATIC_SERVICE_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_ALLIED01</Argument>
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_DIPLOMATIC_SERVICE_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_AUTHORITY_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
+				<Argument name="GossipTypes">GOSSIP_DIPLOMACY_ACTION_STARTED01</Argument>
+				<Argument name="GOSSIP_DIPLOMACY_ACTION_STARTED01">Hash,DiplomacyActionType,DIPLOMACY_ACTION_CS_LEVY_UNIT</Argument>
+				<!-- Two levy ACTIONS, which may be the same City-State twice - the count cannot be
+				     constrained to distinct or to particular City-States. Every shipped filter string for
+				     this gossip uses only DiplomacyActionType / DiplomacyActionGroup / OtherPlayer, and
+				     OtherPlayer takes Self or Other, never an identity; DuplicateCount counts occurrences,
+				     not distinct subjects. There is no levy-counting requirement either. Two actions is
+				     the right ask anyway: it costs Influence twice and does not depend on how many
+				     City-States the map happened to give you. -->
+				<Argument name="AfterInit">True</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_AUTHORITY_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+
+	<!-- Wrappers are 2-item comma lists ON PURPOSE: one long list silently attaches
+	     NOTHING (proven 2026-08-01). -->
+	<Modifier id="ENI_EX_ATTACH_STEPS1" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_GUNPOWDER_3, ENI_EX_STEP_GUNPOWDER_6</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS2" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_GUNPOWDER_9, ENI_EX_STEP_SOCIETY_3</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS3" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_SOCIETY_6, ENI_EX_STEP_SOCIETY_9</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS4" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_SHIPBUILDING_1, ENI_EX_STEP_SHIPBUILDING_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS5" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_SHIPBUILDING_3, ENI_EX_STEP_SHIPBUILDING_4</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS6" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_HERALDRY_1, ENI_EX_STEP_HERALDRY_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS7" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_METALLURGY_1, ENI_EX_STEP_METALLURGY_1_U</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS8" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_METALLURGY_2, ENI_EX_STEP_METALLURGY_2_U</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS9" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_MERCANTILISM_1, ENI_EX_STEP_DIPLOMATIC_SERVICE_1</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS10" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_AUTHORITY_1</Argument>
+	</Modifier>
+	<!-- ============== GENERATED: progress trackers ============== -->
+	<!-- Progress trackers: each one is its deed's OWN requirement at a lower threshold,
+	     writing its own key so the dashboard can draw an N / M. GENERATED by
+	     tools/gen-eni-step-trackers.py - the requirement is CLONED from the marker, never retyped,
+	     because a drifted filter counts the wrong thing and reads in-game as a UI bug with no error.
+	     A deed needs only (need - 1) trackers: the last part IS the deed's own marker property.
+	     Wrappers are 2-item comma lists ON PURPOSE - one long list silently attaches NOTHING. -->
+	<Modifier id="ENI_EX_STEP_EDUCATION_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+					<Argument name="Count">1</Argument>
+					<Argument name="CollectionType">COLLECTION_PLAYER_PLOT_YIELDS</Argument>
+					<Argument name="RequirementSetId">SUBREQSET_ENI_EX_EDUCATION</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_EDUCATION_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_EDUCATION_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+					<Argument name="Count">2</Argument>
+					<Argument name="CollectionType">COLLECTION_PLAYER_PLOT_YIELDS</Argument>
+					<Argument name="RequirementSetId">SUBREQSET_ENI_EX_EDUCATION</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_EDUCATION_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_ARCHITECTURE_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+					<Argument name="BuildingType">BUILDING_KILN</Argument>
+					<Argument name="Amount">1</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_ARCHITECTURE_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_ARCHITECTURE_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+					<Argument name="BuildingType">BUILDING_KILN</Argument>
+					<Argument name="Amount">2</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_ARCHITECTURE_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_METAL_CASTING_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+					<Argument name="BuildingType">BUILDING_ARMORER</Argument>
+					<Argument name="Amount">1</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_METAL_CASTING_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_URBAN_PLANNING_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
+					<Argument name="Count">1</Argument>
+					<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
+					<Argument name="RequirementSetId">SUBREQSET_ENI_EX_NEWCITY</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_URBAN_PLANNING_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_REFORMATION_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+					<Argument name="BuildingType">BUILDING_TEMPLE</Argument>
+					<Argument name="Amount">1</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_REFORMATION_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_REFORMATION_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+					<Argument name="BuildingType">BUILDING_TEMPLE</Argument>
+					<Argument name="Amount">2</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_REFORMATION_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_INSPIRATION_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_GREAT_WORKS">
+					<Argument name="Count">1</Argument>
+					<Argument name="ObjectType">GREATWORKOBJECT_RELIC</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_INSPIRATION_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_COLONIALISM_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_TRADE_ROUTE_HAS_X_RESOURCES">
+					<Argument name="Amount">1</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_COLONIALISM_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_COLONIALISM_3" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_TRADE_ROUTE_HAS_X_RESOURCES">
+					<Argument name="Amount">3</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_COLONIALISM_3</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_COLONIALISM_4" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_TRADE_ROUTE_HAS_X_RESOURCES">
+					<Argument name="Amount">4</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_COLONIALISM_4</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_COLONIALISM_6" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_TRADE_ROUTE_HAS_X_RESOURCES">
+					<Argument name="Amount">6</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_COLONIALISM_6</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SOCIAL_CLASS_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+					<Argument name="BuildingType">BUILDING_TAVERN</Argument>
+					<Argument name="Amount">1</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SOCIAL_CLASS_1</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SOCIAL_CLASS_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+					<Argument name="BuildingType">BUILDING_TAVERN</Argument>
+					<Argument name="Amount">2</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SOCIAL_CLASS_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SOCIAL_CLASS_3" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_BUILDINGS">
+					<Argument name="BuildingType">BUILDING_TAVERN</Argument>
+					<Argument name="Amount">3</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SOCIAL_CLASS_3</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SOVEREIGNTY_2" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_SETTLEMENTS_WITH_RELIGION">
+					<Argument name="OnlyFounded">True</Argument>
+					<Argument name="Amount">2</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SOVEREIGNTY_2</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SOVEREIGNTY_4" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_SETTLEMENTS_WITH_RELIGION">
+					<Argument name="OnlyFounded">True</Argument>
+					<Argument name="Amount">4</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SOVEREIGNTY_4</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SOVEREIGNTY_6" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_SETTLEMENTS_WITH_RELIGION">
+					<Argument name="OnlyFounded">True</Argument>
+					<Argument name="Amount">6</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SOVEREIGNTY_6</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_STEP_SOVEREIGNTY_8" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
+				<Requirement type="REQUIREMENT_PLAYER_HAS_X_SETTLEMENTS_WITH_RELIGION">
+					<Argument name="OnlyFounded">True</Argument>
+					<Argument name="Amount">8</Argument>
+				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_EX_STEP_SOVEREIGNTY_8</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS11" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_EDUCATION_1, ENI_EX_STEP_EDUCATION_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS12" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_ARCHITECTURE_1, ENI_EX_STEP_ARCHITECTURE_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS13" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_METAL_CASTING_1</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS14" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_URBAN_PLANNING_1</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS15" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_REFORMATION_1, ENI_EX_STEP_REFORMATION_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS16" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_INSPIRATION_1</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS17" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_COLONIALISM_1, ENI_EX_STEP_COLONIALISM_3</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS18" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_COLONIALISM_4, ENI_EX_STEP_COLONIALISM_6</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS19" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_SOCIAL_CLASS_1, ENI_EX_STEP_SOCIAL_CLASS_2</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS20" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_SOCIAL_CLASS_3</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS21" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_SOVEREIGNTY_2, ENI_EX_STEP_SOVEREIGNTY_4</Argument>
+	</Modifier>
+	<Modifier id="ENI_EX_ATTACH_STEPS22" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_EX_STEP_SOVEREIGNTY_6, ENI_EX_STEP_SOVEREIGNTY_8</Argument>
+	</Modifier>
+	<!-- ============ END GENERATED: progress trackers ============ -->
+</GameEffects>

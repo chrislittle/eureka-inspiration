@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+	<EnglishText>
+		<Row Tag="LOC_ENI_TITLE_EUREKA">
+			<Text>Eureka!</Text>
+		</Row>
+		<Row Tag="LOC_ENI_TITLE_INSPIRATION">
+			<Text>Inspiration</Text>
+		</Row>
+
+		<Row Tag="LOC_ENI_AQ_WRITING_NAME"><Text>Writing</Text></Row>
+		<Row Tag="LOC_ENI_AQ_WRITING_DESC"><Text>Envoys return with tales of foreign peoples. Meet 2 civilizations and request Open Borders with one of them.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_WRITING_DONE"><Text>Contact and a request for Open Borders hasten Writing — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_IRRIGATION_NAME"><Text>Irrigation</Text></Row>
+		<Row Tag="LOC_ENI_AQ_IRRIGATION_DESC"><Text>Farmers put the whole land to use. Build 6 different types of rural improvement anywhere in your empire.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_IRRIGATION_DONE"><Text>A countryside worked six ways hastens Irrigation — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_MASONRY_NAME"><Text>Masonry</Text></Row>
+		<Row Tag="LOC_ENI_AQ_MASONRY_DESC"><Text>Quarry crews learn the grain of the stone. Build a Quarry.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_MASONRY_DONE"><Text>Your Quarry hastens Masonry — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_CURRENCY_NAME"><Text>Currency</Text></Row>
+		<Row Tag="LOC_ENI_AQ_CURRENCY_DESC"><Text>Coin binds one crown to another. Support 4 Endeavors.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_CURRENCY_DONE"><Text>4 supported Endeavors hasten Currency — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_BRONZE_WORKING_NAME"><Text>Bronze Working</Text></Row>
+		<Row Tag="LOC_ENI_AQ_BRONZE_WORKING_DESC"><Text>Smiths demand ore for the forges. Have 2 improved Iron resources.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_BRONZE_WORKING_DONE"><Text>Working 2 Iron resources hastens Bronze Working — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_MILITARY_TRAINING_NAME"><Text>Military Training</Text></Row>
+		<Row Tag="LOC_ENI_AQ_MILITARY_TRAINING_DESC"><Text>A veteran leader teaches what campaigns alone can. Earn a Commendation on an Army Commander.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_MILITARY_TRAINING_DONE"><Text>Your Commander&apos;s Commendation hastens Military Training — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_IRON_WORKING_NAME"><Text>Iron Working</Text></Row>
+		<Row Tag="LOC_ENI_AQ_IRON_WORKING_DESC"><Text>Weapons and soldiers under one roof. Have a Blacksmith and a Barracks on the same tile.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_IRON_WORKING_DONE"><Text>Your arsenal hastens Iron Working — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_PUBLIC_LIFE_NAME"><Text>Public Life</Text></Row>
+		<Row Tag="LOC_ENI_AQ_PUBLIC_LIFE_DESC"><Text>Every community keeps its own square. Have a Monument in all your settlements.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_PUBLIC_LIFE_DONE"><Text>A Monument in every settlement hastens Public Life — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_CODE_OF_LAWS_NAME"><Text>Code of Laws</Text></Row>
+		<Row Tag="LOC_ENI_AQ_CODE_OF_LAWS_DESC"><Text>Agreements between peoples need words that bind. Have 2 Friendly relationships.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_CODE_OF_LAWS_DONE"><Text>Friendship with 2 leaders hastens Code of Laws — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_ENTERTAINMENT_NAME"><Text>Entertainment</Text></Row>
+		<Row Tag="LOC_ENI_AQ_ENTERTAINMENT_DESC"><Text>The crowd wants spectacle. Build a Villa or an Arena.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_ENTERTAINMENT_DONE"><Text>Building for the public good hastens Entertainment — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_CITIZENSHIP_NAME"><Text>Citizenship</Text></Row>
+		<Row Tag="LOC_ENI_AQ_CITIZENSHIP_DESC"><Text>A people raise what will outlive them. Build a Wonder.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_CITIZENSHIP_DONE"><Text>Your Wonder hastens Citizenship — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_ORG_MILITARY_NAME"><Text>Organized Military</Text></Row>
+		<Row Tag="LOC_ENI_AQ_ORG_MILITARY_DESC"><Text>An army answers to one voice. Defeat 4 units of a major civilization while your unit is within your Commander’s command radius.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_ORG_MILITARY_DONE"><Text>4 victories under command hasten Organized Military — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_LITERACY_NAME"><Text>Literacy</Text></Row>
+		<Row Tag="LOC_ENI_AQ_LITERACY_DESC"><Text>The shelves fill with the written word. Slot 5 Codices.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_LITERACY_DONE"><Text>Your 5 slotted Codices hasten Literacy — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_SKILLED_TRADES_NAME"><Text>Skilled Trades</Text></Row>
+		<Row Tag="LOC_ENI_AQ_SKILLED_TRADES_DESC"><Text>A city of workshops turns goods into craft. Assign 9 Resources to one City.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_SKILLED_TRADES_DONE"><Text>A City working 9 assigned Resources hastens Skilled Trades — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_PHILOSOPHY_NAME"><Text>Philosophy</Text></Row>
+		<Row Tag="LOC_ENI_AQ_PHILOSOPHY_DESC"><Text>The examined life needs a contented city. Have an Ecstatic City.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_PHILOSOPHY_DONE"><Text>An Ecstatic City hastens Philosophy — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_COMMERCE_NAME"><Text>Commerce</Text></Row>
+		<Row Tag="LOC_ENI_AQ_COMMERCE_DESC"><Text>Caravans know every road by name. Have Trade Routes with 3 different civilizations.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_COMMERCE_DONE"><Text>Trade with 3 civilizations hastens Commerce — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_WHEEL_NAME"><Text>The Wheel</Text></Row>
+		<Row Tag="LOC_ENI_AQ_WHEEL_DESC"><Text>The empire finds its rhythm in festivity. Trigger 3 Celebrations.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_WHEEL_DONE"><Text>3 Celebrations hasten The Wheel — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_NAVIGATION_NAME"><Text>Navigation</Text></Row>
+		<Row Tag="LOC_ENI_AQ_NAVIGATION_DESC"><Text>A people that lives by the sea. Have one settlement working 6 Coast tiles, with a Harbor and a Fishing Quay on the same tile.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_NAVIGATION_DONE"><Text>Your fishing settlement hastens Navigation — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_ENGINEERING_NAME"><Text>Engineering</Text></Row>
+		<Row Tag="LOC_ENI_AQ_ENGINEERING_DESC"><Text>The bath must stand where the water is. Build a Bath with an adjacency bonus of 4 or more.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_ENGINEERING_DONE"><Text>A well-sited Bath hastens Engineering — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_MATHEMATICS_NAME"><Text>Mathematics</Text></Row>
+		<Row Tag="LOC_ENI_AQ_MATHEMATICS_DESC"><Text>Scholars bend wholly to study. Have a Specialist on a Library tile in 2 settlements.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_MATHEMATICS_DONE"><Text>Specialists at 2 Libraries hasten Mathematics — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_MYSTICISM_NAME"><Text>Mysticism</Text></Row>
+		<Row Tag="LOC_ENI_AQ_MYSTICISM_DESC"><Text>Wonder stirs the spirit. Discover a Natural Wonder.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_MYSTICISM_DONE"><Text>Discovering a Natural Wonder hastens Mysticism — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_DISCIPLINE_NAME"><Text>Discipline</Text></Row>
+		<Row Tag="LOC_ENI_AQ_DISCIPLINE_DESC"><Text>Order is proven against the wild. Defeat an Independent unit.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_DISCIPLINE_DONE"><Text>A victory over the Independents hastens Discipline — a share of its research is already complete.</Text></Row>
+
+		<Row Tag="LOC_ENI_AQ_TACTICS_NAME"><Text>Tactics</Text></Row>
+		<Row Tag="LOC_ENI_AQ_TACTICS_DESC"><Text>Strike the formation, not the stragglers. Defeat 2 units standing within their own Commander’s command radius.</Text></Row>
+		<Row Tag="LOC_ENI_AQ_TACTICS_DONE"><Text>2 broken formations hasten Tactics — a share of its research is already complete.</Text></Row>
+	</EnglishText>
+</Database>

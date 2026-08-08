@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+	<!-- The tag Irrigation counts: one per rural improvement TYPE, granted run-once by the
+	     ENI_AQ_RURALTAG_* modifiers, so DISTINCT types are counted rather than matched slots. -->
+	<Types>
+		<Row Type="NARRATIVE_TAG_ENI_AQ_RURAL_TYPE" Kind="KIND_NARRATIVE_TAG"/>
+	</Types>
+	<NarrativeTags>
+		<Row NarrativeTagType="NARRATIVE_TAG_ENI_AQ_RURAL_TYPE"/>
+	</NarrativeTags>
+	<!-- THE BIND: a GameEffects <Modifier> definition is INERT until something
+	     instantiates it. Story rewards self-instantiate (why the story deeds always
+	     worked); these attach wrappers need GameModifiers rows (the litmus had exactly
+	     this in boost-aq-bind.xml - the piece the round-3 pivot forgot to port). -->
+	<GameModifiers>
+		<Row ModifierId="ENI_ATTACH_WRITING"/>
+		<Row ModifierId="ENI_ATTACH_IRRIGATION"/>
+		<Row ModifierId="ENI_ATTACH_MASONRY"/>
+		<Row ModifierId="ENI_ATTACH_CURRENCY"/>
+		<Row ModifierId="ENI_ATTACH_BRONZE_WORKING"/>
+		<Row ModifierId="ENI_ATTACH_MILITARY_TRAINING"/>
+		<Row ModifierId="ENI_ATTACH_IRON_WORKING"/>
+		<Row ModifierId="ENI_ATTACH_PUBLIC_LIFE"/>
+		<Row ModifierId="ENI_ATTACH_CODE_OF_LAWS"/>
+		<Row ModifierId="ENI_ATTACH_ENTERTAINMENT"/>
+		<Row ModifierId="ENI_ATTACH_CITIZENSHIP"/>
+		<Row ModifierId="ENI_ATTACH_ORG_MILITARY"/>
+		<Row ModifierId="ENI_ATTACH_LITERACY"/>
+		<Row ModifierId="ENI_ATTACH_SKILLED_TRADES"/>
+		<Row ModifierId="ENI_ATTACH_PHILOSOPHY"/>
+		<Row ModifierId="ENI_ATTACH_COMMERCE"/>
+		<Row ModifierId="ENI_ATTACH_NAVIGATION"/>
+		<Row ModifierId="ENI_ATTACH_ENGINEERING"/>
+		<Row ModifierId="ENI_ATTACH_MATHEMATICS"/>
+		<Row ModifierId="ENI_AQ_ATTACH_RURAL1"/>
+		<Row ModifierId="ENI_AQ_ATTACH_RURALTAG1"/>
+		<Row ModifierId="ENI_AQ_ATTACH_RURAL2"/>
+		<Row ModifierId="ENI_AQ_ATTACH_RURALTAG2"/>
+		<Row ModifierId="ENI_AQ_ATTACH_RURAL3"/>
+		<Row ModifierId="ENI_AQ_ATTACH_RURALTAG3"/>
+		<Row ModifierId="ENI_AQ_ATTACH_STEPS1"/>
+		<Row ModifierId="ENI_AQ_ATTACH_STEPS2"/>
+		<Row ModifierId="ENI_AQ_ATTACH_STEPS3"/>
+		<Row ModifierId="ENI_AQ_ATTACH_STEPS4"/>
+		<Row ModifierId="ENI_AQ_ATTACH_STEPS5"/>
+	<!-- ============== GENERATED: progress trackers ============== -->
+		<Row ModifierId="ENI_AQ_ATTACH_STEPS6"/>
+		<Row ModifierId="ENI_AQ_ATTACH_STEPS7"/>
+		<Row ModifierId="ENI_AQ_ATTACH_STEPS8"/>
+		<Row ModifierId="ENI_AQ_ATTACH_STEPS9"/>
+		<Row ModifierId="ENI_AQ_ATTACH_STEPS10"/>
+		<Row ModifierId="ENI_AQ_ATTACH_STEPS11"/>
+	<!-- ============ END GENERATED: progress trackers ============ -->
+	</GameModifiers>
+</Database>

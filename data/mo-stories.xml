@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+	<!-- ABSOLUTISM rides a HIDDEN narrative story instead of a live modifier, encoded the same way
+	     Antiquity's Wheel, Mysticism, Discipline and Tactics are:
+	       - ActivationRequirementSetId = trivially true at story init (age match; checked ONCE and
+	         silently archived if false - the wrong-way-round lesson)
+	       - RequirementSetId = THE DEED, polled continuously
+	       - Hidden = no native popup; the mod's own UI pops when the reward marker lands.
+	     Rewards attach the boost + marker pair at completion.
+	     WHY these deeds: REQUIREMENT_PLAYER_RAZED_X_CITIES is table-form-only in the base
+	     game, and a litmus showed the other requirement of that class is inert inside a live
+	     modifier. A polled requirement set is the context MA's Delenda Est proves it works in. -->
+	<Types>
+		<Row Type="ENI_MO_ABSOLUTISM" Kind="KIND_NARRATIVE_STORY"/>
+		<Row Type="ENI_MO_LIBERALISM" Kind="KIND_NARRATIVE_STORY"/>
+	</Types>
+	<NarrativeStories>
+		<Row NarrativeStoryType="ENI_MO_ABSOLUTISM" Name="LOC_ENI_MO_ABSOLUTISM_NAME" Description="LOC_ENI_MO_ABSOLUTISM_DESC" Completion="LOC_ENI_MO_ABSOLUTISM_DONE" Age="AGE_MODERN" Activation="REQUISITE" Hidden="TRUE" ActivationRequirementSetId="REQSET_ENI_MO_ELIGIBLE" RequirementSetId="REQSET_ENI_MO_ABSOLUTISM_DONE" UIActivation="STANDARD"/>
+		<Row NarrativeStoryType="ENI_MO_LIBERALISM" Name="LOC_ENI_MO_LIBERALISM_NAME" Description="LOC_ENI_MO_LIBERALISM_DESC" Completion="LOC_ENI_MO_LIBERALISM_DONE" Age="AGE_MODERN" Activation="REQUISITE" Hidden="TRUE" ActivationRequirementSetId="REQSET_ENI_MO_ELIGIBLE" RequirementSetId="REQSET_ENI_MO_LIBERALISM_DONE" UIActivation="STANDARD"/>
+	</NarrativeStories>
+	<NarrativeRewards>
+		<Row NarrativeRewardType="ENI_MO_RW_BOOST_ABSOLUTISM" ModifierID="ENI_MO_BOOST_ABSOLUTISM"/>
+		<Row NarrativeRewardType="ENI_MO_RW_MARK_ABSOLUTISM" ModifierID="ENI_MO_MARK_ABSOLUTISM"/>
+		<Row NarrativeRewardType="ENI_MO_RW_BOOST_LIBERALISM" ModifierID="ENI_MO_BOOST_LIBERALISM"/>
+		<Row NarrativeRewardType="ENI_MO_RW_MARK_LIBERALISM" ModifierID="ENI_MO_MARK_LIBERALISM"/>
+	</NarrativeRewards>
+	<NarrativeStory_Rewards>
+		<Row NarrativeStoryType="ENI_MO_ABSOLUTISM" NarrativeRewardType="ENI_MO_RW_BOOST_ABSOLUTISM" Activation="COMPLETE"/>
+		<Row NarrativeStoryType="ENI_MO_ABSOLUTISM" NarrativeRewardType="ENI_MO_RW_MARK_ABSOLUTISM" Activation="COMPLETE"/>
+		<Row NarrativeStoryType="ENI_MO_LIBERALISM" NarrativeRewardType="ENI_MO_RW_BOOST_LIBERALISM" Activation="COMPLETE"/>
+		<Row NarrativeStoryType="ENI_MO_LIBERALISM" NarrativeRewardType="ENI_MO_RW_MARK_LIBERALISM" Activation="COMPLETE"/>
+	</NarrativeStory_Rewards>
+</Database>

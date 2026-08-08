@@ -78,13 +78,19 @@ generator rather than by a code change.
 The data is generated, not hand-written, so the boosts can never drift from the deeds that award them.
 
 ```
+python tools/gen-eni-mo-political-theory.py  # the per-civ unique-civics markers, swept from your install
+python tools/gen-eni-step-trackers.py      # the dashboard's N / M progress trackers
 python tools/gen-eni-aq-boosts.py          # Antiquity boosts, mirrored from the markers
 python tools/gen-eni-ex-boosts.py          # Exploration
-python tools/gen-eni-mo-boosts.py          # Modern
-python tools/gen-eni-mo-political-theory.py  # the per-civ unique-civics list, swept from your install
+python tools/gen-eni-mo-boosts.py          # Modern (also writes the bind rows)
 python tools/gen-eni-deed-list.py          # docs/DEED-LIST.md
 python tools/check-eni-drift.py            # the build gate - see below
 ```
+
+Order matters and is not alphabetical: the unique-civics generator writes markers, the tracker
+generator clones those markers, the boost generators mirror every marker and sweep the trackers into
+the bind files, and the deed list reads the shipped text last. `publish-eni.ps1` runs them in that
+order for you.
 
 `check-eni-drift.py` is what keeps the mod honest. It fails the build if a boost's requirements no
 longer match the marker that awards it, if a generated civ list has gone stale against the installed

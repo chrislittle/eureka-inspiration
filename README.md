@@ -49,7 +49,7 @@ Every deed follows the same rules, learned the hard way over a lot of testing:
 
 ## Install
 
-**Steam Workshop** — subscribe and enable in the Add-Ons menu.
+**[Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3779946609)** — subscribe, then enable in the Add-Ons menu.
 
 **Manual** — copy the `eureka-inspiration` folder into:
 

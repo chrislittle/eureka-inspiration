@@ -47,8 +47,6 @@
 		<Row ModifierId="ENI_EX_ATTACH_STEPS18"/>
 		<Row ModifierId="ENI_EX_ATTACH_STEPS19"/>
 		<Row ModifierId="ENI_EX_ATTACH_STEPS20"/>
-		<Row ModifierId="ENI_EX_ATTACH_STEPS21"/>
-		<Row ModifierId="ENI_EX_ATTACH_STEPS22"/>
 	<!-- ============ END GENERATED: progress trackers ============ -->
 	</GameModifiers>
 </Database>

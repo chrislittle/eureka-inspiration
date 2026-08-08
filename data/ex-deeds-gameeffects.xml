@@ -910,50 +910,6 @@
 		<Argument name="Value">1</Argument>
 		<Argument name="Operation">CHANGE</Argument>
 	</Modifier>
-	<Modifier id="ENI_EX_STEP_COLONIALISM_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
-	<SubjectRequirements>
-				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
-				<Requirement type="REQUIREMENT_PLAYER_TRADE_ROUTE_HAS_X_RESOURCES">
-					<Argument name="Amount">1</Argument>
-				</Requirement>
-			</SubjectRequirements>
-		<Argument name="Key">ENI_EX_STEP_COLONIALISM_1</Argument>
-		<Argument name="Value">1</Argument>
-		<Argument name="Operation">CHANGE</Argument>
-	</Modifier>
-	<Modifier id="ENI_EX_STEP_COLONIALISM_3" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
-	<SubjectRequirements>
-				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
-				<Requirement type="REQUIREMENT_PLAYER_TRADE_ROUTE_HAS_X_RESOURCES">
-					<Argument name="Amount">3</Argument>
-				</Requirement>
-			</SubjectRequirements>
-		<Argument name="Key">ENI_EX_STEP_COLONIALISM_3</Argument>
-		<Argument name="Value">1</Argument>
-		<Argument name="Operation">CHANGE</Argument>
-	</Modifier>
-	<Modifier id="ENI_EX_STEP_COLONIALISM_4" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
-	<SubjectRequirements>
-				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
-				<Requirement type="REQUIREMENT_PLAYER_TRADE_ROUTE_HAS_X_RESOURCES">
-					<Argument name="Amount">4</Argument>
-				</Requirement>
-			</SubjectRequirements>
-		<Argument name="Key">ENI_EX_STEP_COLONIALISM_4</Argument>
-		<Argument name="Value">1</Argument>
-		<Argument name="Operation">CHANGE</Argument>
-	</Modifier>
-	<Modifier id="ENI_EX_STEP_COLONIALISM_6" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
-	<SubjectRequirements>
-				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
-				<Requirement type="REQUIREMENT_PLAYER_TRADE_ROUTE_HAS_X_RESOURCES">
-					<Argument name="Amount">6</Argument>
-				</Requirement>
-			</SubjectRequirements>
-		<Argument name="Key">ENI_EX_STEP_COLONIALISM_6</Argument>
-		<Argument name="Value">1</Argument>
-		<Argument name="Operation">CHANGE</Argument>
-	</Modifier>
 	<Modifier id="ENI_EX_STEP_SOCIAL_CLASS_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
 	<SubjectRequirements>
 				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
@@ -1057,21 +1013,15 @@
 		<Argument name="ModifierId">ENI_EX_STEP_INSPIRATION_1</Argument>
 	</Modifier>
 	<Modifier id="ENI_EX_ATTACH_STEPS17" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
-		<Argument name="ModifierId">ENI_EX_STEP_COLONIALISM_1, ENI_EX_STEP_COLONIALISM_3</Argument>
-	</Modifier>
-	<Modifier id="ENI_EX_ATTACH_STEPS18" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
-		<Argument name="ModifierId">ENI_EX_STEP_COLONIALISM_4, ENI_EX_STEP_COLONIALISM_6</Argument>
-	</Modifier>
-	<Modifier id="ENI_EX_ATTACH_STEPS19" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
 		<Argument name="ModifierId">ENI_EX_STEP_SOCIAL_CLASS_1, ENI_EX_STEP_SOCIAL_CLASS_2</Argument>
 	</Modifier>
-	<Modifier id="ENI_EX_ATTACH_STEPS20" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+	<Modifier id="ENI_EX_ATTACH_STEPS18" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
 		<Argument name="ModifierId">ENI_EX_STEP_SOCIAL_CLASS_3</Argument>
 	</Modifier>
-	<Modifier id="ENI_EX_ATTACH_STEPS21" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+	<Modifier id="ENI_EX_ATTACH_STEPS19" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
 		<Argument name="ModifierId">ENI_EX_STEP_SOVEREIGNTY_2, ENI_EX_STEP_SOVEREIGNTY_4</Argument>
 	</Modifier>
-	<Modifier id="ENI_EX_ATTACH_STEPS22" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+	<Modifier id="ENI_EX_ATTACH_STEPS20" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
 		<Argument name="ModifierId">ENI_EX_STEP_SOVEREIGNTY_6, ENI_EX_STEP_SOVEREIGNTY_8</Argument>
 	</Modifier>
 	<!-- ============ END GENERATED: progress trackers ============ -->

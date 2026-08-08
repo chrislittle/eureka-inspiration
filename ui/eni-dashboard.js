@@ -41,7 +41,11 @@ function cardHtml(nodeType, d) {
         ).join('');
         // `unit` names what is being counted (types / Celebrations / kills ...). Older entries
         // without one keep the original wording.
-        parts = '<div class="eni-count">' + done + ' / ' + mp.need + ' ' + (mp.unit || 'types') + '</div>' +
+        // A SPLIT deed shows chips only. Its part count collides with a number in the deed's own
+        // sentence - "0 / 2" next to "Meet 2 civilizations" reads as civilizations met rather than
+        // steps done (Chris, from the card in play) - and the chips already name themselves.
+        parts = (mp.split ? ''
+                 : '<div class="eni-count">' + done + ' / ' + mp.need + ' ' + (mp.unit || 'types') + '</div>') +
                 '<div class="eni-parts">' + chips + '</div>';
     }
     return '<div class="eni-card ' + (civ ? 'eni-c' : 'eni-t') + (st.completed ? ' eni-done' : '') + '">' +
@@ -157,22 +161,29 @@ function showNextPopup() {
     try {
         if (popupShowing || popupQueue.length === 0) return;
         popupShowing = true;
-        const { nodeType, d } = popupQueue.shift();
+        const { nodeType, d, spent } = popupQueue.shift();
         const civ = d.tree === 'civic';
         const name = NODE_LABELS[nodeType] ?? nodeType;
         const doneKey = d.deed.replace(/_DESC$/, '_DONE');
         let doneText = eniLoc(doneKey);
         if (!doneText) doneText = eniLoc(d.deed);
         const el = document.createElement('div');
-        el.className = 'eni-pop' + (civ ? ' eni-pop-c' : '');
+        el.className = 'eni-pop' + (civ ? ' eni-pop-c' : '') + (spent ? '' : ' eni-pop-x');
         el.innerHTML =
             // Gold glass, not the raw silver: this is the moment of reward, and #f2d488 is the
             // dock ring's own BOTH-BOOSTED colour and the popup's node-name accent (Chris, 2026-08-02).
-            '<div class="eni-pop-glyph">' + ENI_BULB_SVG.split('#ccd1d5').join('#f2d488') + '</div>' +
+            // A boost that landed on an ALREADY-RESEARCHED node paid nothing, so it keeps the raw
+            // silver bulb and says so - announcing research that never arrived is worse than saying
+            // nothing (Chris, 2026-08-08).
+            '<div class="eni-pop-glyph">' +
+            (spent ? ENI_BULB_SVG.split('#ccd1d5').join('#f2d488') : ENI_BULB_SVG) + '</div>' +
             '<div class="eni-pop-body">' +
-            '<div class="eni-pop-title">' + (civ ? 'Inspiration' : 'Eureka!') + '</div>' +
+            '<div class="eni-pop-title">' +
+            (spent ? (civ ? 'Inspiration' : 'Eureka!')
+                   : (civ ? 'Already completed' : 'Already researched')) + '</div>' +
             '<div class="eni-pop-node">' + name + '</div>' +
-            (doneText ? '<div class="eni-pop-deed">' + doneText + '</div>' : '') +
+            '<div class="eni-pop-deed">' +
+            (spent ? (doneText || '') : 'No boost provided.') + '</div>' +
             '</div>';
         document.body.appendChild(el);
         const dismiss = () => {
@@ -194,8 +205,20 @@ function watchMarkers() {
         for (const [nodeType, d] of Object.entries(ENI_DEEDS)) {
             if (popupSeen.has(nodeType)) continue;
             if (eniBoostEarned(nodeType)) {
+                // ALWAYS record it, whichever card we show - an un-recorded node is re-evaluated
+                // on every poll, which is harmless today only because the marker is permanent.
                 popupSeen.add(nodeType);
-                if (popupBaselined) { popupQueue.push({ nodeType, d }); showNextPopup(); }
+                // Did the boost actually buy anything? A node already researched when its marker
+                // fires pays NOTHING (the mod's own rule: a head start, not a refund), so the
+                // reward card would promise research that never arrived.
+                // ⚠ ONE AMBIGUITY, accepted: if the boost itself finishes the node, this poll sees
+                // it complete and shows the muted card even though the player was paid. It needs
+                // the node to sit within the boost percentage of done, and nothing readable here
+                // distinguishes "was already complete" from "just completed BY this". The
+                // dashboard's earned-vs-banked split at the top of this file has the same blind spot.
+                let spent = true;
+                try { spent = !eniNodeState(nodeType).completed; } catch (e) { /* assume it paid */ }
+                if (popupBaselined) { popupQueue.push({ nodeType, d, spent }); showNextPopup(); }
             }
         }
         popupBaselined = true;

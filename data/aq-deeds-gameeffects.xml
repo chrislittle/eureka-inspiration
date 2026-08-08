@@ -1103,19 +1103,27 @@
 	     because a drifted filter counts the wrong thing and reads in-game as a UI bug with no error.
 	     A deed needs only (need - 1) trackers: the last part IS the deed's own marker property.
 	     Wrappers are 2-item comma lists ON PURPOSE - one long list silently attaches NOTHING. -->
-	<Modifier id="ENI_AQ_STEP_WRITING_1" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<Modifier id="ENI_AQ_STEP_WRITING_CIVS" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
 	<SubjectRequirements>
 				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
 				<Requirement type="REQUIREMENT_PLAYER_MET_NUM_CIVS">
-					<Argument name="Amount">1</Argument>
+					<Argument name="Amount">2</Argument>
 				</Requirement>
+			</SubjectRequirements>
+		<Argument name="Key">ENI_AQ_STEP_WRITING_CIVS</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_AQ_STEP_WRITING_BORDERS" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+	<SubjectRequirements>
+				<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
 				<Requirement type="REQUIREMENT_PLAYER_HAS_AT_LEAST_NUM_GOSSIPS">
 					<Argument name="GossipTypes">GOSSIP_DIPLOMACY_ACTION_STARTED01</Argument>
 					<Argument name="GOSSIP_DIPLOMACY_ACTION_STARTED01">Hash,OtherPlayer,Other,Hash,DiplomacyActionType,DIPLOMACY_ACTION_OPEN_BORDERS</Argument>
 					<Argument name="AfterInit">True</Argument>
 				</Requirement>
 			</SubjectRequirements>
-		<Argument name="Key">ENI_AQ_STEP_WRITING_1</Argument>
+		<Argument name="Key">ENI_AQ_STEP_WRITING_BORDERS</Argument>
 		<Argument name="Value">1</Argument>
 		<Argument name="Operation">CHANGE</Argument>
 	</Modifier>
@@ -1215,7 +1223,7 @@
 		<Argument name="Operation">CHANGE</Argument>
 	</Modifier>
 	<Modifier id="ENI_AQ_ATTACH_STEPS6" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
-		<Argument name="ModifierId">ENI_AQ_STEP_WRITING_1</Argument>
+		<Argument name="ModifierId">ENI_AQ_STEP_WRITING_CIVS, ENI_AQ_STEP_WRITING_BORDERS</Argument>
 	</Modifier>
 	<Modifier id="ENI_AQ_ATTACH_STEPS7" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
 		<Argument name="ModifierId">ENI_AQ_STEP_BRONZE_WORKING_1</Argument>

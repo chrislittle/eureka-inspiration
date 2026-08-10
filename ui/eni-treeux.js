@@ -30,7 +30,7 @@ const cardPct = {};
 // between the rows). Completion = depthUnlocked >= 1 with Number() coercion - the engine
 // RESETS node.progress to 0 at completion (MA GitHub #27), so progress can never signal it.
 // Anchor on .tree-card-hitbox with an INSET, CENTERED glyph - the exact MA-pill idiom
-// (top:50% / right:14px / translateY), the only placement that ships aligned in MA and
+// (top:50% / right:0.7778rem / translateY), the only placement that ships aligned in MA and
 // rendered on-card here. Edge-hugging geometry is unimplementable (art is inset in every
 // layout box) - banked in skill ui-modding.md.
 function barTarget(el) {
@@ -155,7 +155,7 @@ function patchTooltip(tooltip) {
                 // if the anchor is missing, skip the insert (never fall back to the root).
                 const pillRow = costEl && typeof costEl.closest === 'function' ? costEl.closest('.flex-wrap') : null;
                 if (pillRow && pillRow.parentElement) {
-                    box.style.marginTop = '8px';
+                    box.style.marginTop = '0.4444rem';
                     pillRow.parentElement.insertBefore(box, pillRow);
                 }
             }

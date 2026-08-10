@@ -609,11 +609,11 @@ export function eniInjectStyle() {
             '.eni-b .tree-card-name{position:relative;overflow:visible;}' +
             /* Classic YELLOW bulb by default (reads as a lightbulb instantly - Chris);
                the blue/purple takeover is the earned signal. */
-            '.eni-b .tree-card-name::after{content:"";position:absolute;left:100%;margin-left:9px;' +
-            'top:45%;transform:translateY(-55%);width:12px;height:12px;border-radius:50%;pointer-events:none;' +
-            'border:2px solid #8a6318;background:#f5d76e;box-shadow:0 8px 0 -4px #b9902c,0 0 6px rgba(242,212,136,.45);}' +
-            '.eni-e-t .tree-card-name::after{border-color:#1b5e8c;background:#4fc3ff;box-shadow:0 8px 0 -4px #2f7fb8,0 0 10px #4fa3e3;}' +
-            '.eni-e-c .tree-card-name::after{border-color:#6f4390;background:#cf9de8;box-shadow:0 8px 0 -4px #9a5cc4,0 0 10px #a86bc9;}' +
+            '.eni-b .tree-card-name::after{content:"";position:absolute;left:100%;margin-left:0.5rem;' +
+            'top:45%;transform:translateY(-55%);width:0.6667rem;height:0.6667rem;border-radius:50%;pointer-events:none;' +
+            'border:2px solid #8a6318;background:#f5d76e;box-shadow:0 0.4444rem 0 -0.2222rem #b9902c,0 0 0.3333rem rgba(242,212,136,.45);}' +
+            '.eni-e-t .tree-card-name::after{border-color:#1b5e8c;background:#4fc3ff;box-shadow:0 0.4444rem 0 -0.2222rem #2f7fb8,0 0 0.5556rem #4fa3e3;}' +
+            '.eni-e-c .tree-card-name::after{border-color:#6f4390;background:#cf9de8;box-shadow:0 0.4444rem 0 -0.2222rem #9a5cc4,0 0 0.5556rem #a86bc9;}' +
             '.eni-e-t .tree-card-name{color:#4fc3ff;}' +
             '.eni-e-c .tree-card-name{color:#dca9ff;}' +
             /* tooltip: percentage fill inside the cost pill */
@@ -621,14 +621,14 @@ export function eniInjectStyle() {
             '.eni-fill{display:block;position:absolute;top:0;left:0;bottom:0;pointer-events:none;' +
             'background:linear-gradient(180deg,rgba(242,212,136,.30),rgba(211,162,51,.22));' +
             'border-right:1px solid rgba(242,212,136,.55);}' +
-            '.eni-pct{position:relative;margin-left:6px;font-size:.85em;color:#e6d9b8;}' +
+            '.eni-pct{position:relative;margin-left:0.3333rem;font-size:.85em;color:#e6d9b8;}' +
             /* tooltip: the deed box */
-            '.eni-box{display:block;margin:8px 0 0;padding:8px 11px;border-radius:3px;' +
-            'background:rgba(20,32,46,.25);border:1px solid #3f8fce;color:#c9dcec;font-size:13px;line-height:1.45;}' +
+            '.eni-box{display:block;margin:0.4444rem 0 0;padding:0.4444rem 0.6111rem;border-radius:0.1667rem;' +
+            'background:rgba(20,32,46,.25);border:1px solid #3f8fce;color:#c9dcec;font-size:0.8889rem;line-height:1.45;}' +
             '.eni-box.eni-civ{border-color:#8a4fb0;background:rgba(38,22,50,.25);color:#dccbea;}' +
             '.eni-box.eni-earned{border-color:#205f8c;}' +
             '.eni-k{display:inline-block;text-transform:uppercase;letter-spacing:.1em;font-weight:700;' +
-            'font-size:10px;padding:1px 8px 2px;border-radius:3px;margin-right:8px;vertical-align:middle;' +
+            'font-size:0.7778rem;padding:0.0556rem 0.4444rem 0.1111rem;border-radius:0.1667rem;margin-right:0.4444rem;vertical-align:middle;' +
             /* solid in BOTH states (Chris 2026-08-01 - hollow retired with the bulb model):
                deep tone = deed open, bright gradient = earned */
             'background:#2f6da0;color:#eaf6ff;border:1px solid #4fa3e3;}' +
@@ -636,15 +636,15 @@ export function eniInjectStyle() {
             '.eni-earned .eni-k{background:linear-gradient(180deg,#7ec0f2,#3f8fce);color:#062338;border:1px solid #205f8c;}' +
             '.eni-civ.eni-earned .eni-k{background:linear-gradient(180deg,#cf9de8,#9a5cc4);color:#2a0a3a;border:1px solid #6f4390;}' +
             /* the compact "3 / 5" a multi-part deed carries at the end of its tooltip line */
-            '.eni-k.eni-n{margin-left:6px;margin-right:0;letter-spacing:.06em;}' +
+            '.eni-k.eni-n{margin-left:0.3333rem;margin-right:0;letter-spacing:.06em;}' +
             /* dashboard overlay - OPTION B "cool slate" (Chris-picked 2026-08-01): neutral
                slate housing, ALL color carried by the mod's established accents
                (#4fc3ff tech blue / #cf9de8 civic purple - same hexes as popups/caps). */
-            '#eni-dash{position:absolute;top:8%;left:50%;transform:translateX(-50%);width:64%;max-width:900px;' +
+            '#eni-dash{position:absolute;top:8%;left:50%;transform:translateX(-50%);width:64%;max-width:50rem;' +
             'height:80%;z-index:500;background:#242830;border:2px solid #4a515c;' +
-            'border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.45);color:#e8ebef;font-family:sans-serif;' +
+            'border-radius:0.5556rem;box-shadow:0 0.4444rem 1.6667rem rgba(0,0,0,.45);color:#e8ebef;font-family:sans-serif;' +
             'display:flex;flex-direction:column;pointer-events:auto;}' +
-            '#eni-dash .eni-head{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid #3a4049;}' +
+            '#eni-dash .eni-head{display:flex;align-items:center;gap:0.6667rem;padding:0.6667rem 1rem;border-bottom:1px solid #3a4049;}' +
                         // The wordmark follows the Steam logo: two lines, uppercase, gold, EQUAL CAP HEIGHT -
             // "Eureka" is the tech half and "Inspiration" the civic half and neither is subordinate.
             // Line 1 is letterspaced far wider so the two lines read as equal-width blocks despite
@@ -659,20 +659,20 @@ export function eniInjectStyle() {
             '#eni-dash .eni-title{flex-grow:1;line-height:1.12;}' +
             '#eni-dash .eni-w1,#eni-dash .eni-w2{display:block;color:#f2d488;text-transform:uppercase;'
                 + 'font-weight:700;font-family:TitleFont,Georgia,serif;}' +
-            '#eni-dash .eni-w1{font-size:25px;letter-spacing:5.9px;}' +
-            '#eni-dash .eni-w2{font-size:25px;letter-spacing:0.9px;}' +
-            '#eni-dash .eni-close{margin-left:12px;cursor:pointer;padding:6px 10px;border:1px solid #4a515c;border-radius:4px;}' +
+            '#eni-dash .eni-w1{font-size:1.4444rem;letter-spacing:0.3278rem;}' +
+            '#eni-dash .eni-w2{font-size:1.4444rem;letter-spacing:0.05rem;}' +
+            '#eni-dash .eni-close{margin-left:0.6667rem;cursor:pointer;padding:0.3333rem 0.5556rem;border:1px solid #4a515c;border-radius:0.2222rem;}' +
             '#eni-dash .eni-close:hover{border-color:#9aa3ad;}' +
-            '#eni-dash .eni-age{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#9aa3ad;border:1px solid #454c57;border-radius:4px;padding:2px 9px;margin-right:12px;}' +
-            '#eni-dash .eni-toggle{cursor:pointer;font-size:12px;color:#b5bdc6;}' +
-            '#eni-dash .eni-toggle i{display:inline-block;width:12px;height:12px;border:1px solid #6a7482;border-radius:3px;margin-right:6px;background:transparent;}' +
+            '#eni-dash .eni-age{font-size:0.7778rem;text-transform:uppercase;letter-spacing:.12em;color:#9aa3ad;border:1px solid #454c57;border-radius:0.2222rem;padding:0.1111rem 0.5rem;margin-right:0.6667rem;}' +
+            '#eni-dash .eni-toggle{cursor:pointer;font-size:0.8889rem;color:#b5bdc6;}' +
+            '#eni-dash .eni-toggle i{display:inline-block;width:0.6667rem;height:0.6667rem;border:1px solid #6a7482;border-radius:0.1667rem;margin-right:0.3333rem;background:transparent;}' +
             '#eni-dash .eni-toggle.eni-on i{background:#4fc3ff;border-color:#3f8fce;}' +
             '#eni-dash .eni-toggle:hover{color:#f0f2f5;}' +
             '#eni-dash .eni-stats{display:flex;border-bottom:1px solid #3a4049;background:#20242b;}' +
-            '#eni-dash .eni-stats > div{flex:1;padding:8px 18px;border-right:1px solid #3a4049;}' +
-            '#eni-dash .eni-stats b{display:block;font-size:17px;color:#f0f2f5;}' +
-            '#eni-dash .eni-stats span{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:#9aa3ad;}' +
-            '#eni-dash .eni-body{flex:1;overflow-y:auto;padding:10px 16px;}' +
+            '#eni-dash .eni-stats > div{flex:1;padding:0.4444rem 1rem;border-right:1px solid #3a4049;}' +
+            '#eni-dash .eni-stats b{display:block;font-size:1rem;color:#f0f2f5;}' +
+            '#eni-dash .eni-stats span{font-size:0.7778rem;text-transform:uppercase;letter-spacing:.09em;color:#9aa3ad;}' +
+            '#eni-dash .eni-body{flex:1;overflow-y:auto;padding:0.5556rem 0.8889rem;}' +
             // Section headers were too quiet to scan against the cards (Chris, 2026-08-06): brighter,
             // larger, and given a hairline rule so a section reads as a section rather than a caption.
             // ⛔ USE ONLY font-weight 400 OR 700 - NEVER AN INTERMEDIATE WEIGHT. font-weight:600 made
@@ -688,20 +688,20 @@ export function eniInjectStyle() {
             // to its content. Chrome lays these out inline either way, so a desktop preview will
             // NOT reproduce the bug.
             '#eni-dash .eni-sect{display:flex;align-items:baseline;'
-                + 'font-size:13px;text-transform:uppercase;letter-spacing:.13em;'
-                + 'color:#e6dcc4;margin:16px 2px 8px;padding-bottom:5px;border-bottom:1px solid #3a4550;}' +
+                + 'font-size:0.8889rem;text-transform:uppercase;letter-spacing:.13em;'
+                + 'color:#e6dcc4;margin:0.8889rem 0.1111rem 0.4444rem;padding-bottom:0.2778rem;border-bottom:1px solid #3a4550;}' +
             // An ideology group reads as a SUB-heading of Civic, not a peer of it.
-            '#eni-dash .eni-sect.eni-sub{font-size:12px;color:#cdbf9c;margin:14px 2px 8px 12px;'
-                + 'border-left:3px solid #4a5563;padding-left:9px;border-bottom:1px solid #333d47;}' +
-            '#eni-dash .eni-sect .eni-note{font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;'
-                + 'color:#7d8894;margin-left:9px;font-style:italic;}' +
-            '#eni-dash .eni-sect .eni-yours{flex:0 0 auto;font-size:11px;text-transform:none;letter-spacing:0;'
-                + 'color:#0f1319;background:#c8a24a;padding:2px 7px;border-radius:9px;margin-left:9px;}' +
+            '#eni-dash .eni-sect.eni-sub{font-size:0.8889rem;color:#cdbf9c;margin:0.7778rem 0.1111rem 0.4444rem 0.6667rem;'
+                + 'border-left:3px solid #4a5563;padding-left:0.5rem;border-bottom:1px solid #333d47;}' +
+            '#eni-dash .eni-sect .eni-note{font-size:0.7778rem;font-weight:400;text-transform:none;letter-spacing:0;'
+                + 'color:#7d8894;margin-left:0.5rem;font-style:italic;}' +
+            '#eni-dash .eni-sect .eni-yours{flex:0 0 auto;font-size:0.7778rem;text-transform:none;letter-spacing:0;'
+                + 'color:#0f1319;background:#c8a24a;padding:0.1111rem 0.3889rem;border-radius:0.5rem;margin-left:0.5rem;}' +
             // Muted, NOT hidden: the fork is worth seeing even once it is behind you. Kept well
             // above unreadable so a player can still check what the other paths asked for.
             '#eni-dash .eni-dim{opacity:.42;}' +
             '#eni-dash .eni-cards{display:flex;flex-wrap:wrap;}' +
-            '#eni-dash .eni-card{flex:0 0 31.5%;margin:0 1% 10px 0;background:#2c313a;border:1px solid #454c57;border-radius:6px;padding:9px 11px;font-size:13px;}' +
+            '#eni-dash .eni-card{flex:0 0 31.5%;margin:0 1% 0.5556rem 0;background:#2c313a;border:1px solid #454c57;border-radius:0.3333rem;padding:0.5rem 0.6111rem;font-size:0.8889rem;}' +
             '#eni-dash .eni-card.eni-t{border-top:3px solid #4fc3ff;}' +
             '#eni-dash .eni-card.eni-c{border-top:3px solid #cf9de8;}' +
             '#eni-dash .eni-card.eni-done{opacity:.55;border-top-color:#454c57;}' +
@@ -709,25 +709,25 @@ export function eniInjectStyle() {
             '#eni-dash .eni-card.eni-t .eni-nm{color:#4fc3ff;}' +
             '#eni-dash .eni-card.eni-c .eni-nm{color:#cf9de8;}' +
             '#eni-dash .eni-card.eni-done .eni-nm{color:#c3cad2;}' +
-            '#eni-dash .eni-nm small{font-weight:400;color:#9aa3ad;margin-left:6px;font-size:11px;}' +
-            '#eni-dash .eni-dd{color:#c3cad2;margin:5px 0;min-height:34px;font-size:12px;line-height:1.4;}' +
+            '#eni-dash .eni-nm small{font-weight:400;color:#9aa3ad;margin-left:0.3333rem;font-size:0.7778rem;}' +
+            '#eni-dash .eni-dd{color:#c3cad2;margin:0.2778rem 0;min-height:1.8889rem;font-size:0.8889rem;line-height:1.4;}' +
             '#eni-dash .eni-dd.eni-dt{color:#bfe0fb;}' +
             '#eni-dash .eni-dd.eni-dc{color:#e6cdf8;}' +
-            '#eni-dash .eni-parts{display:flex;flex-wrap:wrap;margin:2px 0 6px;}' +
-            '#eni-dash .eni-part{font-size:10px;padding:1px 6px;border-radius:3px;margin:0 4px 4px 0;border:1px solid #454c57;color:#8a939d;}' +
+            '#eni-dash .eni-parts{display:flex;flex-wrap:wrap;margin:0.1111rem 0 0.3333rem;}' +
+            '#eni-dash .eni-part{font-size:0.7778rem;padding:0.0556rem 0.3333rem;border-radius:0.1667rem;margin:0 0.2222rem 0.2222rem 0;border:1px solid #454c57;color:#8a939d;}' +
             '#eni-dash .eni-part.on{border-color:#4fa3e3;background:#2f6da0;color:#eaf6ff;}' +
             '#eni-dash .eni-card.eni-c .eni-part.on{border-color:#a86bc9;background:#6f4390;color:#f4eafc;}' +
-            '#eni-dash .eni-count{font-size:11px;color:#9aa3ad;margin:1px 0 3px;}' +
+            '#eni-dash .eni-count{font-size:0.7778rem;color:#9aa3ad;margin:0.0556rem 0 0.1667rem;}' +
             '#eni-dash .eni-ft{display:flex;align-items:center;}' +
-            '#eni-dash .eni-prog{flex:1;position:relative;overflow:hidden;border:1px solid #454c57;border-radius:99px;padding:1px 9px;font-size:11px;text-align:center;margin-right:8px;color:#f0f2f5;background:#1b1f26;}' +
+            '#eni-dash .eni-prog{flex:1;position:relative;overflow:hidden;border:1px solid #454c57;border-radius:5.5rem;padding:0.1667rem 0.5rem;min-height:1.3333rem;font-size:0.7778rem;text-align:center;margin-right:0.4444rem;color:#f0f2f5;background:#1b1f26;}' +
             '#eni-dash .eni-prog i{display:block;position:absolute;top:0;left:0;bottom:0;background:#3f8fce;}' +
             /* completed: inset fill (left+right) - width:100% measures the PADDED box and
                stops short of the pill's ends */
             '#eni-dash .eni-prog.eni-full i{left:0;right:0;width:auto;}' +
-            '#eni-dash .eni-badge.eni-tick{border:none;padding:2px 4px;display:flex;align-items:center;}' +
+            '#eni-dash .eni-badge.eni-tick{border:none;padding:0.1111rem 0.2222rem;display:flex;align-items:center;}' +
             '#eni-dash .eni-card.eni-c .eni-prog i{background:#9a5cc4;}' +
             '#eni-dash .eni-prog span{position:relative;}' +
-            '#eni-dash .eni-badge{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:4px;}' +
+            '#eni-dash .eni-badge{font-size:0.7778rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:0.1111rem 0.4444rem;border-radius:0.2222rem;}' +
             '#eni-dash .eni-badge.bt{background:#2f6da0;color:#eaf6ff;border:1px solid #4fa3e3;}' +
             '#eni-dash .eni-badge.et{background:linear-gradient(180deg,#7ec0f2,#3f8fce);color:#062338;border:1px solid #205f8c;}' +
             '#eni-dash .eni-badge.bc{background:#6f4390;color:#f4eafc;border:1px solid #a86bc9;}' +
@@ -738,19 +738,19 @@ export function eniInjectStyle() {
                book glyph (blp:sub_civics) is blanked INLINE in eni-dashboard.js - class
                CSS loses the cascade tie against the component stylesheet. */
             '.ring-eni .ssb__button-icon{width:4.6rem;height:4.2rem;}' +
-            '.eni-pop{position:fixed;top:120px;left:50%;margin-left:-190px;width:380px;z-index:120;' +
-            'display:flex;align-items:center;gap:14px;padding:14px 18px;cursor:pointer;' +
-            'background:linear-gradient(180deg,#101b26,#0b1218);border:2px solid #4fa3e3;border-radius:10px;' +
-            'box-shadow:0 10px 34px rgba(0,0,0,.7);color:#e8dcbc;font-family:sans-serif;pointer-events:auto;}' +
+            '.eni-pop{position:fixed;top:6.6667rem;left:50%;transform:translateX(-50%);width:26rem;max-width:90vw;z-index:120;' +
+            'display:flex;align-items:center;gap:0.7778rem;padding:0.7778rem 1rem;cursor:pointer;' +
+            'background:linear-gradient(180deg,#101b26,#0b1218);border:2px solid #4fa3e3;border-radius:0.5556rem;' +
+            'box-shadow:0 0.5556rem 1.8889rem rgba(0,0,0,.7);color:#e8dcbc;font-family:sans-serif;pointer-events:auto;}' +
             '.eni-pop.eni-pop-c{background:linear-gradient(180deg,#180f22,#100a17);border-color:#a86bc9;}' +
-            '.eni-pop .eni-pop-glyph{width:44px;height:44px;flex-shrink:0;}' +
+            '.eni-pop .eni-pop-glyph{width:3rem;height:3rem;flex-shrink:0;}' +
             /* explicit width = 380 - 2x18 padding - 44 glyph - 14 gap; Coherent flex
                children overflow the border without it (field-proven on this very card) */
-            '.eni-pop .eni-pop-body{width:286px;}' +
-            '.eni-pop .eni-pop-title{font-size:19px;letter-spacing:.06em;color:#7ec0f2;font-weight:bold;}' +
+            '.eni-pop .eni-pop-body{flex:1;min-width:0;}' +
+            '.eni-pop .eni-pop-title{font-size:1.2222rem;letter-spacing:.06em;color:#7ec0f2;font-weight:bold;}' +
             '.eni-pop.eni-pop-c .eni-pop-title{color:#cf9de8;}' +
-            '.eni-pop .eni-pop-node{font-size:14px;color:#f2d488;margin-top:2px;}' +
-            '.eni-pop .eni-pop-deed{font-size:12px;color:#b3a686;margin-top:4px;}' +
+            '.eni-pop .eni-pop-node{font-size:1rem;color:#f2d488;margin-top:0.1111rem;}' +
+            '.eni-pop .eni-pop-deed{font-size:0.8889rem;color:#b3a686;margin-top:0.2222rem;}' +
             /* The node was ALREADY researched when the marker fired, so the boost paid nothing.
                Everything gold or accented is drained out - a player must not be able to mistake
                this for the reward card at a glance, which is the whole reason it exists. The
@@ -762,6 +762,23 @@ export function eniInjectStyle() {
         (document.head || document.documentElement).appendChild(st);
     } catch (e) { /* cosmetic only */ }
 }
+
+/* Options > Accessibility > Font Scale rewrites `html { font-size }` (global-scaling.js),
+   which is what every rem in this stylesheet resolves against. Coherent does NOT recompute
+   an already-injected sheet when that root changes, so the panel keeps the sizes it was
+   built with while the rest of the game rescales (reported by Chris, 2026-08-09). Dropping
+   the node and writing it again forces the recompute. The game fires UIFontScaleChanged for
+   exactly this purpose - screen-options.js and global-scaling.js are its only base listeners. */
+export function eniRestyle() {
+    try {
+        document.getElementById('eni-style')?.remove();
+        eniInjectStyle();
+    } catch (e) { /* cosmetic only */ }
+}
+
+try {
+    engine.on('UIFontScaleChanged', eniRestyle);
+} catch (e) { /* no engine in this context - the sheet simply stays as injected */ }
 
 // The bulb, flat silver, as inline SVG.
 export const ENI_BULB_SVG =

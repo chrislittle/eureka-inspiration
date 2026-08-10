@@ -97,7 +97,7 @@ function render() {
             // SMALLER than the crest does. The crest scales to fill its box exactly.
             // Sized well up from the original 64x56: this is the panel's identity mark, and it was
             // being out-weighed by the title beside it.
-            '<div style="width:104px;height:91px;flex-shrink:0;">' + ENI_CREST_SVG + '</div>' +
+            '<div style="width:5.7778rem;height:5.0556rem;flex-shrink:0;">' + ENI_CREST_SVG + '</div>' +
             '<div class="eni-title"><div class="eni-w1">Eureka &amp;</div>' +
             '<div class="eni-w2">Inspiration</div></div>' +
             '<span class="eni-age">' + ({ AQ: 'Antiquity', EX: 'Exploration', MO: 'Modern' }[age] || '') + '</span>' +
@@ -141,6 +141,13 @@ function show() {
 function hide() {
     try { const el = document.getElementById('eni-dash'); if (el) el.style.display = 'none'; } catch (e) { /* gone */ }
 }
+/* Re-render on a Font Scale change. eniRestyle() (eni-core) re-injects the stylesheet, but
+   this panel also writes inline style="..." attributes, and those are rebuilt only by a
+   render. render() no-ops when the panel does not exist, so this is safe unconditionally. */
+try {
+    engine.on('UIFontScaleChanged', () => { try { render(); } catch (e) { /* cosmetic */ } });
+} catch (e) { /* no engine in this context */ }
+
 function toggle() {
     const el = document.getElementById('eni-dash');
     if (el && el.style.display !== 'none') hide(); else show();
@@ -357,7 +364,7 @@ class EniDockDecorator {
             if (root) {
                 const b = document.createElement('div');
                 b.className = 'eni-dock-btn';
-                b.style.cssText = 'width:38px;height:36px;display:inline-flex;align-items:center;justify-content:center;margin:0 4px;';
+                b.style.cssText = 'width:2.1111rem;height:2rem;display:inline-flex;align-items:center;justify-content:center;margin:0 0.2222rem;';
                 b.addEventListener('click', toggle);
                 root.appendChild(b);
                 dockIconEl = b;

@@ -9,7 +9,9 @@ stone and Masonry is already half-learned; meet two civilizations and Writing co
 **70 boosts across all three Ages** — 23 in Antiquity, 22 in Exploration, 25 in Modern. The full list
 is in [docs/DEED-LIST.md](docs/DEED-LIST.md).
 
-![Reading the tracker](docs/eni-tracker-legend.jpg)
+![Reading the tracker](docs/eni-tracker-legend-1-readouts.jpg)
+
+![The dashboard](docs/eni-tracker-legend-2-dashboard.jpg)
 
 ## How much a boost pays
 

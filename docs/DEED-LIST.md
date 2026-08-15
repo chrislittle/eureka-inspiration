@@ -12,83 +12,83 @@ deed and a **Eureka!** or **Inspiration** fires, pre-paying a share of that node
 
 | Node | Deed |
 |---|---|
-| **Bronze Working** | Smiths demand ore for the forges. Have 2 improved Iron resources. |
-| **Citizenship** | A people raise what will outlive them. Build a Wonder. |
-| **Code of Laws** | Agreements between peoples need words that bind. Have 2 Friendly relationships. |
-| **Commerce** | Caravans know every road by name. Have Trade Routes with 3 different civilizations. |
-| **Currency** | Coin binds one crown to another. Support 4 Endeavors. |
-| **Discipline** | Order is proven against the wild. Defeat an Independent unit. |
-| **Engineering** | The bath must stand where the water is. Build a Bath with an adjacency bonus of 4 or more. |
-| **Entertainment** | The crowd wants spectacle. Build a Villa or an Arena. |
-| **Iron Working** | Weapons and soldiers under one roof. Have a Blacksmith and a Barracks on the same tile. |
-| **Irrigation** | Farmers put the whole land to use. Build 6 different types of rural improvement anywhere in your empire. |
-| **Literacy** | The shelves fill with the written word. Slot 5 Codices. |
-| **Masonry** | Quarry crews learn the grain of the stone. Build a Quarry. |
-| **Mathematics** | Scholars bend wholly to study. Have a Specialist on a Library tile in 2 settlements. |
-| **Military Training** | A veteran leader teaches what campaigns alone can. Earn a Commendation on an Army Commander. |
-| **Mysticism** | Wonder stirs the spirit. Discover a Natural Wonder. |
-| **Navigation** | A people that lives by the sea. Have one settlement working 6 Coast tiles, with a Harbor and a Fishing Quay on the same tile. |
-| **Organized Military** | An army answers to one voice. Defeat 4 units of a major civilization while your unit is within your Commander’s command radius. |
-| **Philosophy** | The examined life needs a contented city. Have an Ecstatic City. |
-| **Public Life** | Every community keeps its own square. Have a Monument in all your settlements. |
-| **Skilled Trades** | A city of workshops turns goods into craft. Assign 9 Resources to one City. |
-| **Tactics** | Strike the formation, not the stragglers. Defeat 2 units standing within their own Commander’s command radius. |
-| **The Wheel** | The empire finds its rhythm in festivity. Trigger 3 Celebrations. |
-| **Writing** | Envoys return with tales of foreign peoples. Meet 2 civilizations and request Open Borders with one of them. |
+| **Bronze Working** | Have 2 improved Iron resources. |
+| **Citizenship** | Build a Wonder. |
+| **Code of Laws** | Have 2 Friendly relationships. |
+| **Commerce** | Have Trade Routes with 3 different civilizations. |
+| **Currency** | Support 4 Endeavors. |
+| **Discipline** | Defeat an Independent unit. |
+| **Engineering** | Build a Bath with an adjacency bonus of 4 or more. |
+| **Entertainment** | Build a Villa or an Arena. |
+| **Iron Working** | Have a Blacksmith and a Barracks on the same tile. |
+| **Irrigation** | Build 6 different types of rural improvement anywhere in your empire. |
+| **Literacy** | Slot 5 Codices. |
+| **Masonry** | Build a Quarry. |
+| **Mathematics** | Have a Specialist on a Library tile in 2 settlements. |
+| **Military Training** | Earn a Commendation on an Army Commander. |
+| **Mysticism** | Discover a Natural Wonder. |
+| **Navigation** | Have one settlement working 6 Coast tiles, with a Harbor and a Fishing Quay on the same tile. |
+| **Organized Military** | Defeat 4 units of a major civilization while your unit is within your Commander’s command radius. |
+| **Philosophy** | Have an Ecstatic City. |
+| **Public Life** | Have a Monument in all your cities. |
+| **Skilled Trades** | Assign 9 Resources to one City. |
+| **Tactics** | Defeat 2 units standing within their own Commander’s command radius. |
+| **The Wheel** | Trigger 3 Celebrations. |
+| **Writing** | Meet 2 civilizations and request Open Borders with one of them. |
 
 ## Exploration - 22 boosts
 
 | Node | Deed |
 |---|---|
-| **Architecture** | Fired clay becomes ornament. Build Kilns in 3 settlements. |
-| **Authority** | Vassals answer the call to arms. Levy 2 units from City-States this Age. |
-| **Bureaucracy** | Business between states needs an address. Build a Minor Embassy. |
-| **Castles** | One town gives up its trade for its walls. Have a Fort Town. |
-| **Colonialism** | One road carries a kingdom's goods. Have a Trade Route carrying 7 Resources. |
-| **Diplomatic Service** | Friendship is written down and signed. Form 2 Alliances this Age. |
-| **Education** | Scholars must be kept, not merely housed. Have a Specialist on an Observatory tile in 3 settlements. |
-| **Feudalism** | The lord fortifies every seat of his realm. Have Medieval Walls in all your Cities. |
-| **Guilds** | The market thrives where the water meets the road. Build a Bazaar with an adjacency bonus of 5 or more. |
-| **Gunpowder** | War is carried to their country. Defeat 12 enemy units in their own territory this Age. |
-| **Heraldry** | Horse and banner ride together. Train 3 Cavalry units this Age. Any Cavalry unit counts, including unique ones. |
-| **Imperialism** | A rival throne is taken. Capture a Capital this Age. |
-| **Inspiration** | The devout gather what the saints left behind. Earn 2 Relics. |
-| **Mercantilism** | Wealth follows the agreements of princes. Take part in 2 Endeavors with another civilization this Age. |
-| **Metal Casting** | Armies need a trade behind them. Build Armorers in 2 settlements. |
-| **Metallurgy** | The bow of steel and yew. Train 3 Crossbowmen this Age. Your civilization’s unique replacement counts. |
-| **Reformation** | The faith needs a house in every quarter. Build Temples in 3 settlements. |
-| **Shipbuilding** | Hulls are proven under fire. Defeat 5 units at sea this Age. |
-| **Social Class** | The common house is the heart of the town. Build Taverns in 4 settlements. |
-| **Society** | Hands are moved from the field to the trade. Place 10 Specialists this Age. |
-| **Sovereignty** | One creed answers to one crown. Have 10 settlements following your Religion. |
-| **Urban Planning** | New ground is raised into cities. Have 2 Cities founded this Age. |
+| **Architecture** | Build Kilns in 3 settlements. |
+| **Authority** | Levy 2 units from City-States this Age. |
+| **Bureaucracy** | Build a Minor Embassy. |
+| **Castles** | Have a Fort Town. |
+| **Colonialism** | Have a Trade Route carrying 7 Resources. |
+| **Diplomatic Service** | Form 2 Alliances this Age. |
+| **Education** | Have a Specialist on an Observatory tile in 3 settlements. |
+| **Feudalism** | Have Medieval Walls in all your Cities. |
+| **Guilds** | Build a Bazaar with an adjacency bonus of 5 or more. |
+| **Gunpowder** | Defeat 12 enemy units in their own territory this Age. |
+| **Heraldry** | Train 3 Cavalry units this Age. Any Cavalry unit counts, including unique ones. |
+| **Imperialism** | Capture a Capital this Age. |
+| **Inspiration** | Earn 2 Relics. |
+| **Mercantilism** | Take part in 2 Endeavors with another civilization this Age. |
+| **Metal Casting** | Build Armorers in 2 settlements. |
+| **Metallurgy** | Train 3 Crossbowmen this Age. Your civilization’s unique replacement counts. |
+| **Reformation** | Build Temples in 3 settlements. |
+| **Shipbuilding** | Defeat 5 units at sea this Age. |
+| **Social Class** | Build Taverns in 4 settlements. |
+| **Society** | Place 10 Specialists this Age. |
+| **Sovereignty** | Have 10 settlements following your Religion. |
+| **Urban Planning** | Have 2 Cities founded this Age. |
 
 ## Modern - 25 boosts
 
 | Node | Deed |
 |---|---|
-| **Absolutism** | Some rule is made plain by what it removes. Raze 2 settlements. |
-| **Aerodynamics** | Three shapes in the air teach more than three of one. Have a Biplane, a Trench Fighter and a Bomber at the same time. Unique replacements count. |
-| **Armor** | The line breaks where the armour reaches the headquarters. Defeat an enemy Commander this Age. |
-| **Capitalism** | Money sits where the sea route meets the rail head. Have a Stock Exchange adjacent to both a Port and a Rail Station. |
-| **Centralism** | The plan decides what the countryside is for. Have 5 Farming or Fishing Towns. |
-| **Combustion** | What the earth kept, the engine age digs up. Extract an Artifact. |
-| **Computation** | Teaching and calculating on one block. Have a Laboratory and a Schoolhouse on the same tile. |
-| **Electricity** | Nothing turns without something to burn. Have 4 Coal or Oil Resources, in any combination. |
-| **Flight** | You cannot fly over a world you have never seen. Reveal the whole map. |
-| **Globalism** | No one is left off the table. Be engaged in diplomacy with every leader you have met. |
-| **Hegemony** | Rule shows in what you are allowed to build. Build 3 Open-Air Museums. |
-| **Industrialization** | One town gives up everything else to feed the works. Have a Factory Town with 3 Resources assigned to it. |
-| **Liberalism** | Liberty is what a long quiet buys. Be at peace with every major civilization on turn 20 of the Modern Age. |
-| **Mass Production** | The line only moves as fast as the rails that feed it. Have 2 settlements connected by Railroad. |
-| **Militarism** | The state stands behind its walls everywhere at once. Have Defensive Fortifications in all your Cities. |
-| **Mobilization** | The whole war moves at the speed of the air arm. Defeat 3 units with Air units this Age. |
-| **Nationalism** | A nation at war wants a reason it can name. Declare a Formal War. |
-| **Nuclear Fission** | The atom is split in a lecture hall long before a desert. Build Oxford University. |
-| **Political Theory** | Every people argues its own case first. Research a node in your civilization's unique civics tree. |
-| **Progressivism** | Reform carries the country with it. Hold +4 War Support against your opponent. |
-| **Radicalism** | A creed that thrives on enemies never lacks for them. Be at war with 2 major civilizations at once. |
-| **Radio** | Every broadcast is also a chance to listen in. Run 3 Espionage actions this Age. |
-| **Rocketry** | A launch needs an airfield and a laboratory in the same place. Have an Aerodrome and a Laboratory in your Capital. |
-| **Socialism** | Housing for all of them, not a showpiece for one. Have a Tenement in all your Cities. |
-| **Urbanization** | The crowded city still needs somewhere to breathe. Build City Parks in 3 settlements. |
+| **Absolutism** | Raze 2 settlements. |
+| **Aerodynamics** | Have a Biplane, a Trench Fighter and a Bomber at the same time. Unique replacements count. |
+| **Armor** | Defeat an enemy Commander this Age. |
+| **Capitalism** | Have a Stock Exchange adjacent to both a Port and a Rail Station. |
+| **Centralism** | Have 5 Farming or Fishing Towns. |
+| **Combustion** | Extract an Artifact. |
+| **Computation** | Have a Laboratory and a Schoolhouse on the same tile. |
+| **Electricity** | Have 4 Coal or Oil Resources, in any combination. |
+| **Flight** | Reveal the whole map. |
+| **Globalism** | Be engaged in diplomacy with every leader you have met. |
+| **Hegemony** | Build 3 Open-Air Museums. |
+| **Industrialization** | Have a Factory Town with 3 Resources assigned to it. |
+| **Liberalism** | Be at peace with every major civilization on turn 20 of the Modern Age. |
+| **Mass Production** | Have 2 settlements connected by Railroad. |
+| **Militarism** | Have Defensive Fortifications in all your Cities. |
+| **Mobilization** | Defeat 3 units with Air units this Age. |
+| **Nationalism** | Declare a Formal War. |
+| **Nuclear Fission** | Build Oxford University. |
+| **Political Theory** | Research a node in your civilization's unique civics tree. |
+| **Progressivism** | Hold +4 War Support against your opponent. |
+| **Radicalism** | Be at war with 2 major civilizations at once. |
+| **Radio** | Run 3 Espionage actions this Age. |
+| **Rocketry** | Have an Aerodrome and a Laboratory in your Capital. |
+| **Socialism** | Have a Tenement in all your Cities. |
+| **Urbanization** | Build City Parks in 3 settlements. |

@@ -73,7 +73,32 @@
 			<Argument name="IsGreaterThanOrEquals">true</Argument>
 		</Requirement>
 	</RequirementSet>
-	<RequirementSet id="SUBREQSET_ENI_AQ_MONUMENT">
+	<!-- Public Life: "every settlement is a Town, or a City that has a Monument".
+	     TOWNS AND THE MONUMENT - corrected 2026-08-15 after Steam feedback. The note that used to sit
+	     on the marker claimed "a Monument is an urban-center building a Town can hold, so 'every
+	     settlement' means exactly that". That is WRONG, and it made this the ONLY all-settlement deed
+	     in the mod without a Town exemption (Feudalism, Militarism and Socialism all have one).
+	     PRECISELY: BUILDING_MONUMENT carries Tag="CULTURE" but has NO Town="True" in the Buildings
+	     table, so a town can neither build nor purchase one by default. Two exceptions exist, both
+	     costly, and neither is something a player would do across a whole empire:
+	       - PROJECT_TOWN_URBAN_CENTER grants its town the SCIENCE+CULTURE tags (via
+	         URBAN_YIELDS_FROM_PROJECT), so an Urban Center town CAN buy one - but specializing needs
+	         population 7 and spends the town's single specialisation.
+	       - Augustus (AUGUSTUS_MOD_TOWN_CULTURE_BUILDING, gated REQUIREMENT_CITY_IS_TOWN) grants
+	         CULTURE to ALL his towns, so for that one leader every town can buy one.
+	     So the deed was not strictly impossible - it demanded either one specific leader or an Urban
+	     Center in every town - which is why a player reported it as unreasonable and worse the wider
+	     you go. Towns are now excused. -->
+	<RequirementSet id="SUBREQSET_ENI_AQ_MONUMENT" type="REQUIREMENTSET_TEST_ANY">
+		<Requirement type="REQUIREMENT_CITY_IS_TOWN"/>
+		<Requirement type="REQUIREMENT_CITY_HAS_BUILDING">
+			<Argument name="BuildingType">BUILDING_MONUMENT</Argument>
+		</Requirement>
+	</RequirementSet>
+	<!-- the guard: at least one real City with a Monument, so an all-Town empire cannot pass on
+	     excuses alone. Naming matches SUBREQSET_ENI_EX_WALLEDCITY / _MO_FORTIFIEDCITY / _MO_HOUSEDCITY. -->
+	<RequirementSet id="SUBREQSET_ENI_AQ_MONUMENTCITY">
+		<Requirement type="REQUIREMENT_CITY_IS_CITY"/>
 		<Requirement type="REQUIREMENT_CITY_HAS_BUILDING">
 			<Argument name="BuildingType">BUILDING_MONUMENT</Argument>
 		</Requirement>
@@ -336,8 +361,9 @@
 	     interesting - Chris's read after the full Antiquity pass. A raised number would not have
 	     fixed that.
 	     WHY A MONUMENT: it is the civic marker of a community - CULTURE + DIPLOMACY + URBANCENTER -
-	     which is what public life IS. Unused by any other deed, and cheap at 90 so a Town can buy
-	     one. Considered and rejected: Market (historically the truest - the agora WAS the
+	     which is what public life IS. Unused by any other deed, and cheap at 90.
+	     (⚠ the clause "so a Town can buy one" was here and was FALSE - see the corrected note on
+	     SUBREQSET_ENI_AQ_MONUMENT above.) Considered and rejected: Market (historically the truest - the agora WAS the
 	     marketplace - but tagged Gold/Trade, and Commerce sits in the same tree), Garden (reads as
 	     leisure), Altar (religion, which Mysticism owns AND is this node's prereq), Amphitheater
 	     (unlocked by Engineering, far too late for a 245 civic).
@@ -347,20 +373,23 @@
 	     (Feudalism in EX, Militarism and Socialism in MO).
 	     Not circular: Monument comes from MASONRY, a 125 tech; this is a 245 civic. Public Life's
 	     own unlocks are the Oracle, City Guard and Annona, none of which is involved.
-	     No Town exemption is needed here, unlike the walls deeds: a Monument is an urban-centre
-	     building a Town can hold, so "every settlement" means exactly that. The COUNT_ATLEAST 1 is
-	     the guard against an empire with no settlements passing vacuously.
+	     ⛔ TOWN EXEMPTION ADDED 2026-08-15 after Steam feedback ("not possible for some civs and gets
+	     harder the more settlements you have, which I don't think is reasonable" - and he was right).
+	     The original reasoning here said no exemption was needed because a Town can hold a Monument.
+	     It cannot, by default; the full correction sits on SUBREQSET_ENI_AQ_MONUMENT above. The deed
+	     now reads "a Monument in all your CITIES", with towns excused by the TEST_ANY set and a floor
+	     (SUBREQSET_ENI_AQ_MONUMENTCITY, COUNT_ATLEAST 1) so an all-Town empire cannot pass on excuses.
+	     This makes Public Life the fourth deed to use the mod's standard all-settlement shape rather
+	     than the lone exception to it.
 
-	     KNOWN AND ACCEPTED (Chris, 2026-08-04): ALL_MET is easiest for the SMALLEST empire, so a
-	     player could sit on one settlement, build one Monument, bank the boost - the marker is
-	     run-once, so expanding afterwards cannot revoke it - and only then expand. Unlike Feudalism
-	     and Militarism, which exempt Towns and so charge a wide player more, this deed charges a
-	     small empire least.
-	     DELIBERATELY NOT PLUGGED. Chris's call: holding at one settlement long enough to research
-	     Masonry (which unlocks the Monument) and then Public Life at 245 costs far more than a 245
-	     civic's boost is worth - on Deity that player is simply behind. The exploit taxes itself.
-	     A floor ("at least 3 settlements have a Monument") was considered and rejected as solving a
-	     problem the difficulty already solves. -->
+	     BALANCE NOTE, now inverted by that fix. The old text read: "ALL_MET is easiest for the
+	     SMALLEST empire ... unlike Feudalism and Militarism, which exempt Towns and so charge a wide
+	     player more, this deed charges a small empire least", and Chris deliberately left that
+	     unplugged because holding at one settlement to research Masonry then Public Life at 245 taxes
+	     itself on Deity. With towns excused the deed now scales with CITY count exactly like Feudalism
+	     and Militarism, so a wide player pays more and the old concern is gone rather than tolerated.
+	     A one-city empire still passes with a single Monument - which is correct, not an exploit: that
+	     player has one city and has built its Monument. -->
 	<Modifier id="ENI_MARK_PUBLIC_LIFE" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
 		<SubjectRequirements>
 			<Requirement type="REQUIREMENT_GAME_IS_STARTED"/>
@@ -371,7 +400,7 @@
 			<Requirement type="REQUIREMENT_COLLECTION_COUNT_ATLEAST">
 				<Argument name="Count">1</Argument>
 				<Argument name="CollectionType">COLLECTION_PLAYER_CITIES</Argument>
-				<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_MONUMENT</Argument>
+				<Argument name="RequirementSetId">SUBREQSET_ENI_AQ_MONUMENTCITY</Argument>
 			</Requirement>
 		</SubjectRequirements>
 		<Argument name="Key">ENI_BOOST_NODE_CIVIC_AQ_MAIN_PUBLIC_LIFE</Argument>

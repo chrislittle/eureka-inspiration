@@ -1,104 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- TEXT SHAPE: _DESC is the REQUIREMENT ONLY; the flavor lives in _DONE, which the reward popup
+     shows. See the header of aq-text.xml for the full reasoning and the Civilization VI precedent.
+     ⚠ The popup prints the NODE NAME on its own line above the _DONE text, so _DONE must NOT repeat
+     it - "its" refers to the node named above.
+     ⛔ THREE STALE _DONE LINES WERE FOUND HERE (2026-08-15) by auditing text against the actual
+     marker requirements - each described an action the deed does not check:
+       Armor        said "an enemy Air unit shot down"   - the deed checks IsDyingUnitCommander
+       Urbanization said "on a Breathtaking tile"        - the deed only counts 3 City Parks
+       Radicalism   said "against an opposing Ideology"  - the deed checks 2 wars with majors
+     In all three the _DESC was correct and the _DONE had drifted, which is precisely the failure a
+     restated-requirement line invites. Flavor cannot drift from mechanics, because it never claimed
+     to describe them. -->
 <Database>
 	<EnglishText>
 		<Row Tag="LOC_ENI_MO_ELECTRICITY_NAME"><Text>Electricity</Text></Row>
-		<Row Tag="LOC_ENI_MO_ELECTRICITY_DESC"><Text>Nothing turns without something to burn. Have 4 Coal or Oil Resources, in any combination.</Text></Row>
-		<Row Tag="LOC_ENI_MO_ELECTRICITY_DONE"><Text>4 Resources of fuel hasten Electricity — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_ELECTRICITY_DESC"><Text>Have 4 Coal or Oil Resources, in any combination.</Text></Row>
+		<Row Tag="LOC_ENI_MO_ELECTRICITY_DONE"><Text>Nothing turns without something to burn — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_URBANIZATION_NAME"><Text>Urbanization</Text></Row>
-		<Row Tag="LOC_ENI_MO_URBANIZATION_DESC"><Text>The crowded city still needs somewhere to breathe. Build City Parks in 3 settlements.</Text></Row>
-		<Row Tag="LOC_ENI_MO_URBANIZATION_DONE"><Text>A City Park on a Breathtaking tile hastens Urbanization — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_URBANIZATION_DESC"><Text>Build City Parks in 3 settlements.</Text></Row>
+		<Row Tag="LOC_ENI_MO_URBANIZATION_DONE"><Text>The crowded city still needs somewhere to breathe — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_COMBUSTION_NAME"><Text>Combustion</Text></Row>
-		<Row Tag="LOC_ENI_MO_COMBUSTION_DESC"><Text>What the earth kept, the engine age digs up. Extract an Artifact.</Text></Row>
-		<Row Tag="LOC_ENI_MO_COMBUSTION_DONE"><Text>An extracted Artifact hastens Combustion — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_COMBUSTION_DESC"><Text>Extract an Artifact.</Text></Row>
+		<Row Tag="LOC_ENI_MO_COMBUSTION_DONE"><Text>What the earth kept, the engine age dug up — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_INDUSTRIALIZATION_NAME"><Text>Industrialization</Text></Row>
-		<Row Tag="LOC_ENI_MO_INDUSTRIALIZATION_DESC"><Text>One town gives up everything else to feed the works. Have a Factory Town with 3 Resources assigned to it.</Text></Row>
-		<Row Tag="LOC_ENI_MO_INDUSTRIALIZATION_DONE"><Text>A Factory Town with 3 Resources hastens Industrialization — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_INDUSTRIALIZATION_DESC"><Text>Have a Factory Town with 3 Resources assigned to it.</Text></Row>
+		<Row Tag="LOC_ENI_MO_INDUSTRIALIZATION_DONE"><Text>One town gave up everything else to feed the works — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_RADIO_NAME"><Text>Radio</Text></Row>
-		<Row Tag="LOC_ENI_MO_RADIO_DESC"><Text>Every broadcast is also a chance to listen in. Run 3 Espionage actions this Age.</Text></Row>
-		<Row Tag="LOC_ENI_MO_RADIO_DONE"><Text>3 Espionage actions hasten Radio — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_RADIO_DESC"><Text>Run 3 Espionage actions this Age.</Text></Row>
+		<Row Tag="LOC_ENI_MO_RADIO_DONE"><Text>Every broadcast is also a chance to listen in — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_FLIGHT_NAME"><Text>Flight</Text></Row>
-		<Row Tag="LOC_ENI_MO_FLIGHT_DESC"><Text>You cannot fly over a world you have never seen. Reveal the whole map.</Text></Row>
-		<Row Tag="LOC_ENI_MO_FLIGHT_DONE"><Text>A fully revealed map hastens Flight — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_FLIGHT_DESC"><Text>Reveal the whole map.</Text></Row>
+		<Row Tag="LOC_ENI_MO_FLIGHT_DONE"><Text>You cannot fly over a world you have never seen — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_MASS_PRODUCTION_NAME"><Text>Mass Production</Text></Row>
-		<Row Tag="LOC_ENI_MO_MASS_PRODUCTION_DESC"><Text>The line only moves as fast as the rails that feed it. Have 2 settlements connected by Railroad.</Text></Row>
-		<Row Tag="LOC_ENI_MO_MASS_PRODUCTION_DONE"><Text>2 settlements on the rail network hasten Mass Production — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_MASS_PRODUCTION_DESC"><Text>Have 2 settlements connected by Railroad.</Text></Row>
+		<Row Tag="LOC_ENI_MO_MASS_PRODUCTION_DONE"><Text>The line only moves as fast as the rails that feed it — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_COMPUTATION_NAME"><Text>Computation</Text></Row>
-		<Row Tag="LOC_ENI_MO_COMPUTATION_DESC"><Text>Teaching and calculating on one block. Have a Laboratory and a Schoolhouse on the same tile.</Text></Row>
-		<Row Tag="LOC_ENI_MO_COMPUTATION_DONE"><Text>A Laboratory beside a Schoolhouse hastens Computation — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_COMPUTATION_DESC"><Text>Have a Laboratory and a Schoolhouse on the same tile.</Text></Row>
+		<Row Tag="LOC_ENI_MO_COMPUTATION_DONE"><Text>Teaching and calculating on one block — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_MOBILIZATION_NAME"><Text>Mobilization</Text></Row>
-		<Row Tag="LOC_ENI_MO_MOBILIZATION_DESC"><Text>The whole war moves at the speed of the air arm. Defeat 3 units with Air units this Age.</Text></Row>
-		<Row Tag="LOC_ENI_MO_MOBILIZATION_DONE"><Text>3 kills from the air hasten Mobilization — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_MOBILIZATION_DESC"><Text>Defeat 3 units with Air units this Age.</Text></Row>
+		<Row Tag="LOC_ENI_MO_MOBILIZATION_DONE"><Text>The whole war moves at the speed of the air arm — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_ARMOR_NAME"><Text>Armor</Text></Row>
-		<Row Tag="LOC_ENI_MO_ARMOR_DESC"><Text>The line breaks where the armour reaches the headquarters. Defeat an enemy Commander this Age.</Text></Row>
-		<Row Tag="LOC_ENI_MO_ARMOR_DONE"><Text>An enemy Air unit shot down hastens Armor — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_ARMOR_DESC"><Text>Defeat an enemy Commander this Age.</Text></Row>
+		<Row Tag="LOC_ENI_MO_ARMOR_DONE"><Text>The line breaks where the armor reaches the headquarters — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_AERODYNAMICS_NAME"><Text>Aerodynamics</Text></Row>
-		<Row Tag="LOC_ENI_MO_AERODYNAMICS_DESC"><Text>Three shapes in the air teach more than three of one. Have a Biplane, a Trench Fighter and a Bomber at the same time. Unique replacements count.</Text></Row>
-		<Row Tag="LOC_ENI_MO_AERODYNAMICS_DONE"><Text>A Biplane, a Trench Fighter and a Bomber hasten Aerodynamics — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_AERODYNAMICS_DESC"><Text>Have a Biplane, a Trench Fighter and a Bomber at the same time. Unique replacements count.</Text></Row>
+		<Row Tag="LOC_ENI_MO_AERODYNAMICS_DONE"><Text>Three shapes in the air teach more than three of one — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_NUCLEAR_FISSION_NAME"><Text>Nuclear Fission</Text></Row>
-		<Row Tag="LOC_ENI_MO_NUCLEAR_FISSION_DESC"><Text>The atom is split in a lecture hall long before a desert. Build Oxford University.</Text></Row>
-		<Row Tag="LOC_ENI_MO_NUCLEAR_FISSION_DONE"><Text>Oxford University hastens Nuclear Fission — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_NUCLEAR_FISSION_DESC"><Text>Build Oxford University.</Text></Row>
+		<Row Tag="LOC_ENI_MO_NUCLEAR_FISSION_DONE"><Text>The atom is split in a lecture hall long before a desert — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_ROCKETRY_NAME"><Text>Rocketry</Text></Row>
-		<Row Tag="LOC_ENI_MO_ROCKETRY_DESC"><Text>A launch needs an airfield and a laboratory in the same place. Have an Aerodrome and a Laboratory in your Capital.</Text></Row>
-		<Row Tag="LOC_ENI_MO_ROCKETRY_DONE"><Text>Your Capital's launch complex hastens Rocketry — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_ROCKETRY_DESC"><Text>Have an Aerodrome and a Laboratory in your Capital.</Text></Row>
+		<Row Tag="LOC_ENI_MO_ROCKETRY_DONE"><Text>A launch needs an airfield and a laboratory in the same place — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_POLITICAL_THEORY_NAME"><Text>Political Theory</Text></Row>
-		<Row Tag="LOC_ENI_MO_POLITICAL_THEORY_DESC"><Text>Every people argues its own case first. Research a node in your civilization's unique civics tree.</Text></Row>
-		<Row Tag="LOC_ENI_MO_POLITICAL_THEORY_DONE"><Text>Your own civilization's civics hasten Political Theory — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_POLITICAL_THEORY_DESC"><Text>Research a node in your civilization's unique civics tree.</Text></Row>
+		<Row Tag="LOC_ENI_MO_POLITICAL_THEORY_DONE"><Text>Every people argues its own case first — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_GLOBALISM_NAME"><Text>Globalism</Text></Row>
-		<Row Tag="LOC_ENI_MO_GLOBALISM_DESC"><Text>No one is left off the table. Be engaged in diplomacy with every leader you have met.</Text></Row>
-		<Row Tag="LOC_ENI_MO_GLOBALISM_DONE"><Text>Dealings with every leader you have met hasten Globalism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_GLOBALISM_DESC"><Text>Be engaged in diplomacy with every leader you have met.</Text></Row>
+		<Row Tag="LOC_ENI_MO_GLOBALISM_DONE"><Text>No one is left off the table — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_NATIONALISM_NAME"><Text>Nationalism</Text></Row>
-		<Row Tag="LOC_ENI_MO_NATIONALISM_DESC"><Text>A nation at war wants a reason it can name. Declare a Formal War.</Text></Row>
-		<Row Tag="LOC_ENI_MO_NATIONALISM_DONE"><Text>A Formal War hastens Nationalism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_NATIONALISM_DESC"><Text>Declare a Formal War.</Text></Row>
+		<Row Tag="LOC_ENI_MO_NATIONALISM_DONE"><Text>A nation at war wants a reason it can name — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_CAPITALISM_NAME"><Text>Capitalism</Text></Row>
-		<Row Tag="LOC_ENI_MO_CAPITALISM_DESC"><Text>Money sits where the sea route meets the rail head. Have a Stock Exchange adjacent to both a Port and a Rail Station.</Text></Row>
-		<Row Tag="LOC_ENI_MO_CAPITALISM_DONE"><Text>A Stock Exchange between Port and Rail Station hastens Capitalism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_CAPITALISM_DESC"><Text>Have a Stock Exchange adjacent to both a Port and a Rail Station.</Text></Row>
+		<Row Tag="LOC_ENI_MO_CAPITALISM_DONE"><Text>Money sits where the sea route meets the rail head — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_MILITARISM_NAME"><Text>Militarism</Text></Row>
-		<Row Tag="LOC_ENI_MO_MILITARISM_DESC"><Text>The state stands behind its walls everywhere at once. Have Defensive Fortifications in all your Cities.</Text></Row>
-		<Row Tag="LOC_ENI_MO_MILITARISM_DONE"><Text>Fortifications over every city hasten Militarism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_MILITARISM_DESC"><Text>Have Defensive Fortifications in all your Cities.</Text></Row>
+		<Row Tag="LOC_ENI_MO_MILITARISM_DONE"><Text>The state stands behind its walls everywhere at once — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_HEGEMONY_NAME"><Text>Hegemony</Text></Row>
-		<Row Tag="LOC_ENI_MO_HEGEMONY_DESC"><Text>Rule shows in what you are allowed to build. Build 3 Open-Air Museums.</Text></Row>
-		<Row Tag="LOC_ENI_MO_HEGEMONY_DONE"><Text>3 Open-Air Museums hasten Hegemony — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_HEGEMONY_DESC"><Text>Build 3 Open-Air Museums.</Text></Row>
+		<Row Tag="LOC_ENI_MO_HEGEMONY_DONE"><Text>Rule shows in what you are allowed to build — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_LIBERALISM_NAME"><Text>Liberalism</Text></Row>
-		<Row Tag="LOC_ENI_MO_LIBERALISM_DESC"><Text>Liberty is what a long quiet buys. Be at peace with every major civilization on turn 20 of the Modern Age.</Text></Row>
-		<Row Tag="LOC_ENI_MO_LIBERALISM_DONE"><Text>Peace with every major civilization hastens Liberalism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_LIBERALISM_DESC"><Text>Be at peace with every major civilization on turn 20 of the Modern Age.</Text></Row>
+		<Row Tag="LOC_ENI_MO_LIBERALISM_DONE"><Text>Liberty is what a long quiet buys — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_PROGRESSIVISM_NAME"><Text>Progressivism</Text></Row>
-		<Row Tag="LOC_ENI_MO_PROGRESSIVISM_DESC"><Text>Reform carries the country with it. Hold +4 War Support against your opponent.</Text></Row>
-		<Row Tag="LOC_ENI_MO_PROGRESSIVISM_DONE"><Text>+4 War Support hastens Progressivism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_PROGRESSIVISM_DESC"><Text>Hold +4 War Support against your opponent.</Text></Row>
+		<Row Tag="LOC_ENI_MO_PROGRESSIVISM_DONE"><Text>Reform carries the country with it — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_RADICALISM_NAME"><Text>Radicalism</Text></Row>
-		<Row Tag="LOC_ENI_MO_RADICALISM_DESC"><Text>A creed that thrives on enemies never lacks for them. Be at war with 2 major civilizations at once.</Text></Row>
-		<Row Tag="LOC_ENI_MO_RADICALISM_DONE"><Text>War against an opposing Ideology hastens Radicalism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_RADICALISM_DESC"><Text>Be at war with 2 major civilizations at once.</Text></Row>
+		<Row Tag="LOC_ENI_MO_RADICALISM_DONE"><Text>A creed that thrives on enemies never lacks for them — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_ABSOLUTISM_NAME"><Text>Absolutism</Text></Row>
-		<Row Tag="LOC_ENI_MO_ABSOLUTISM_DESC"><Text>Some rule is made plain by what it removes. Raze 2 settlements.</Text></Row>
-		<Row Tag="LOC_ENI_MO_ABSOLUTISM_DONE"><Text>2 razed settlements hasten Absolutism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_ABSOLUTISM_DESC"><Text>Raze 2 settlements.</Text></Row>
+		<Row Tag="LOC_ENI_MO_ABSOLUTISM_DONE"><Text>Some rule is made plain by what it removes — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_CENTRALISM_NAME"><Text>Centralism</Text></Row>
-		<Row Tag="LOC_ENI_MO_CENTRALISM_DESC"><Text>The plan decides what the countryside is for. Have 5 Farming or Fishing Towns.</Text></Row>
-		<Row Tag="LOC_ENI_MO_CENTRALISM_DONE"><Text>5 Farming or Fishing Towns hasten Centralism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_CENTRALISM_DESC"><Text>Have 5 Farming or Fishing Towns.</Text></Row>
+		<Row Tag="LOC_ENI_MO_CENTRALISM_DONE"><Text>The plan decides what the countryside is for — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_MO_SOCIALISM_NAME"><Text>Socialism</Text></Row>
-		<Row Tag="LOC_ENI_MO_SOCIALISM_DESC"><Text>Housing for all of them, not a showpiece for one. Have a Tenement in all your Cities.</Text></Row>
-		<Row Tag="LOC_ENI_MO_SOCIALISM_DONE"><Text>A Tenement in every city hastens Socialism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_MO_SOCIALISM_DESC"><Text>Have a Tenement in all your Cities.</Text></Row>
+		<Row Tag="LOC_ENI_MO_SOCIALISM_DONE"><Text>Housing for all of them, not a showpiece for one — a share of its research is already complete.</Text></Row>
 	</EnglishText>
 </Database>

@@ -1,9 +1,17 @@
 """Fail if any Eureka & Inspiration BOOST requirement has drifted from its MARKER.
 
-Exploration cannot drift - gen-eni-ex-boosts.py mirrors marker requirements into the boosts every
-time it runs. ANTIQUITY's aq-boosts-40.xml is hand-maintained, so an edit to a marker there is not
-carried into the boost automatically: the UI would then track one condition while the boost paid on
-another. This check exists because exactly that happened while re-cutting Currency (2026-08-02).
+Every Age mirrors marker requirements into its boosts via a generator (gen-eni-aq-boosts.py,
+gen-eni-ex-boosts.py, gen-eni-mo-boosts.py), and publish-eni.ps1 re-runs all of them before it
+exports - so a boost drifts only when a marker is edited and the generator is NOT re-run. The UI
+would then track one condition while the boost paid on another. This check exists because exactly
+that happened while re-cutting Currency (2026-08-02), and it caught the same class again on
+2026-08-15 during the Public Life town-exemption fix.
+⚠ CORRECTED 2026-08-15: this note used to say Antiquity's aq-boosts-40.xml was "hand-maintained".
+It is not - it carries a do-not-edit header and gen-eni-aq-boosts.py owns it. Hand-editing it works
+until the next publish silently regenerates the file over your change. Edit the MARKER, re-run the
+generator.
+⚠ The comparison is a whitespace-normalised STRING match on the whole <SubjectRequirements> block,
+so an XML comment placed INSIDE that block reads as drift. Keep commentary outside it.
 Run it after editing any Antiquity deed.
 
 SECOND CHECK - Modern / Political Theory's unique-civics set.

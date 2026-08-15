@@ -1,92 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- TEXT SHAPE: _DESC is the REQUIREMENT ONLY; the flavor lives in _DONE, which the reward popup
+     shows. See the header of aq-text.xml for the full reasoning and the Civilization VI precedent.
+     ⚠ The popup prints the NODE NAME on its own line above the _DONE text, so _DONE must NOT repeat
+     it - "its" refers to the node named above. -->
 <Database>
 	<EnglishText>
 		<Row Tag="LOC_ENI_EX_FEUDALISM_NAME"><Text>Feudalism</Text></Row>
-		<Row Tag="LOC_ENI_EX_FEUDALISM_DESC"><Text>The lord fortifies every seat of his realm. Have Medieval Walls in all your Cities.</Text></Row>
-		<Row Tag="LOC_ENI_EX_FEUDALISM_DONE"><Text>Walls over every city hasten Feudalism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_FEUDALISM_DESC"><Text>Have Medieval Walls in all your Cities.</Text></Row>
+		<Row Tag="LOC_ENI_EX_FEUDALISM_DONE"><Text>The lord has fortified every seat of his realm — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_GUILDS_NAME"><Text>Guilds</Text></Row>
-		<Row Tag="LOC_ENI_EX_GUILDS_DESC"><Text>The market thrives where the water meets the road. Build a Bazaar with an adjacency bonus of 5 or more.</Text></Row>
-		<Row Tag="LOC_ENI_EX_GUILDS_DONE"><Text>A well-sited Bazaar hastens Guilds — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_GUILDS_DESC"><Text>Build a Bazaar with an adjacency bonus of 5 or more.</Text></Row>
+		<Row Tag="LOC_ENI_EX_GUILDS_DONE"><Text>The market thrives where the water meets the road — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_CASTLES_NAME"><Text>Castles</Text></Row>
-		<Row Tag="LOC_ENI_EX_CASTLES_DESC"><Text>One town gives up its trade for its walls. Have a Fort Town.</Text></Row>
-		<Row Tag="LOC_ENI_EX_CASTLES_DONE"><Text>Your Fort Town hastens Castles — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_CASTLES_DESC"><Text>Have a Fort Town.</Text></Row>
+		<Row Tag="LOC_ENI_EX_CASTLES_DONE"><Text>One town gave up its trade for its walls — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_HERALDRY_NAME"><Text>Heraldry</Text></Row>
-		<Row Tag="LOC_ENI_EX_HERALDRY_DESC"><Text>Horse and banner ride together. Train 3 Cavalry units this Age. Any Cavalry unit counts, including unique ones.</Text></Row>
-		<Row Tag="LOC_ENI_EX_HERALDRY_DONE"><Text>3 Cavalry units hasten Heraldry — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_HERALDRY_DESC"><Text>Train 3 Cavalry units this Age. Any Cavalry unit counts, including unique ones.</Text></Row>
+		<Row Tag="LOC_ENI_EX_HERALDRY_DONE"><Text>Horse and banner ride together — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_EDUCATION_NAME"><Text>Education</Text></Row>
-		<Row Tag="LOC_ENI_EX_EDUCATION_DESC"><Text>Scholars must be kept, not merely housed. Have a Specialist on an Observatory tile in 3 settlements.</Text></Row>
-		<Row Tag="LOC_ENI_EX_EDUCATION_DONE"><Text>Specialists at 3 Observatories hasten Education — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_EDUCATION_DESC"><Text>Have a Specialist on an Observatory tile in 3 settlements.</Text></Row>
+		<Row Tag="LOC_ENI_EX_EDUCATION_DONE"><Text>Scholars kept, not merely housed — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_METALLURGY_NAME"><Text>Metallurgy</Text></Row>
-		<Row Tag="LOC_ENI_EX_METALLURGY_DESC"><Text>The bow of steel and yew. Train 3 Crossbowmen this Age. Your civilization’s unique replacement counts.</Text></Row>
-		<Row Tag="LOC_ENI_EX_METALLURGY_DONE"><Text>3 Crossbowmen hasten Metallurgy — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_METALLURGY_DESC"><Text>Train 3 Crossbowmen this Age. Your civilization’s unique replacement counts.</Text></Row>
+		<Row Tag="LOC_ENI_EX_METALLURGY_DONE"><Text>The bow of steel and yew — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_SHIPBUILDING_NAME"><Text>Shipbuilding</Text></Row>
-		<Row Tag="LOC_ENI_EX_SHIPBUILDING_DESC"><Text>Hulls are proven under fire. Defeat 5 units at sea this Age.</Text></Row>
-		<Row Tag="LOC_ENI_EX_SHIPBUILDING_DONE"><Text>5 victories at sea hasten Shipbuilding — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_SHIPBUILDING_DESC"><Text>Defeat 5 units at sea this Age.</Text></Row>
+		<Row Tag="LOC_ENI_EX_SHIPBUILDING_DONE"><Text>Your hulls were proven under fire — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_ARCHITECTURE_NAME"><Text>Architecture</Text></Row>
-		<Row Tag="LOC_ENI_EX_ARCHITECTURE_DESC"><Text>Fired clay becomes ornament. Build Kilns in 3 settlements.</Text></Row>
-		<Row Tag="LOC_ENI_EX_ARCHITECTURE_DONE"><Text>Kilns in 3 settlements hasten Architecture — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_ARCHITECTURE_DESC"><Text>Build Kilns in 3 settlements.</Text></Row>
+		<Row Tag="LOC_ENI_EX_ARCHITECTURE_DONE"><Text>Fired clay turned to ornament — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_METAL_CASTING_NAME"><Text>Metal Casting</Text></Row>
-		<Row Tag="LOC_ENI_EX_METAL_CASTING_DESC"><Text>Armies need a trade behind them. Build Armorers in 2 settlements.</Text></Row>
-		<Row Tag="LOC_ENI_EX_METAL_CASTING_DONE"><Text>Armorers in 2 settlements hasten Metal Casting — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_METAL_CASTING_DESC"><Text>Build Armorers in 2 settlements.</Text></Row>
+		<Row Tag="LOC_ENI_EX_METAL_CASTING_DONE"><Text>Armies need a trade behind them — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_GUNPOWDER_NAME"><Text>Gunpowder</Text></Row>
-		<Row Tag="LOC_ENI_EX_GUNPOWDER_DESC"><Text>War is carried to their country. Defeat 12 enemy units in their own territory this Age.</Text></Row>
-		<Row Tag="LOC_ENI_EX_GUNPOWDER_DONE"><Text>A campaign of 12 victories on enemy soil hastens Gunpowder — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_GUNPOWDER_DESC"><Text>Defeat 12 enemy units in their own territory this Age.</Text></Row>
+		<Row Tag="LOC_ENI_EX_GUNPOWDER_DONE"><Text>War was carried to their country — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_URBAN_PLANNING_NAME"><Text>Urban Planning</Text></Row>
-		<Row Tag="LOC_ENI_EX_URBAN_PLANNING_DESC"><Text>New ground is raised into cities. Have 2 Cities founded this Age.</Text></Row>
-		<Row Tag="LOC_ENI_EX_URBAN_PLANNING_DONE"><Text>2 Cities founded this Age hasten Urban Planning — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_URBAN_PLANNING_DESC"><Text>Have 2 Cities founded this Age.</Text></Row>
+		<Row Tag="LOC_ENI_EX_URBAN_PLANNING_DONE"><Text>New ground raised into cities — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_REFORMATION_NAME"><Text>Reformation</Text></Row>
-		<Row Tag="LOC_ENI_EX_REFORMATION_DESC"><Text>The faith needs a house in every quarter. Build Temples in 3 settlements.</Text></Row>
-		<Row Tag="LOC_ENI_EX_REFORMATION_DONE"><Text>Temples in 3 settlements hasten Reformation — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_REFORMATION_DESC"><Text>Build Temples in 3 settlements.</Text></Row>
+		<Row Tag="LOC_ENI_EX_REFORMATION_DONE"><Text>The faith has a house in every quarter — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_AUTHORITY_NAME"><Text>Authority</Text></Row>
-		<Row Tag="LOC_ENI_EX_AUTHORITY_DESC"><Text>Vassals answer the call to arms. Levy 2 units from City-States this Age.</Text></Row>
-		<Row Tag="LOC_ENI_EX_AUTHORITY_DONE"><Text>A levied company hastens Authority — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_AUTHORITY_DESC"><Text>Levy 2 units from City-States this Age.</Text></Row>
+		<Row Tag="LOC_ENI_EX_AUTHORITY_DONE"><Text>Vassals answered the call to arms — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_INSPIRATION_NAME"><Text>Inspiration</Text></Row>
-		<Row Tag="LOC_ENI_EX_INSPIRATION_DESC"><Text>The devout gather what the saints left behind. Earn 2 Relics.</Text></Row>
-		<Row Tag="LOC_ENI_EX_INSPIRATION_DONE"><Text>2 Relics hasten Inspiration — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_INSPIRATION_DESC"><Text>Earn 2 Relics.</Text></Row>
+		<Row Tag="LOC_ENI_EX_INSPIRATION_DONE"><Text>The devout gathered what the saints left behind — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_MERCANTILISM_NAME"><Text>Mercantilism</Text></Row>
-		<Row Tag="LOC_ENI_EX_MERCANTILISM_DESC"><Text>Wealth follows the agreements of princes. Take part in 2 Endeavors with another civilization this Age.</Text></Row>
-		<Row Tag="LOC_ENI_EX_MERCANTILISM_DONE"><Text>2 Endeavors hasten Mercantilism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_MERCANTILISM_DESC"><Text>Take part in 2 Endeavors with another civilization this Age.</Text></Row>
+		<Row Tag="LOC_ENI_EX_MERCANTILISM_DONE"><Text>Wealth follows the agreements of princes — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_BUREAUCRACY_NAME"><Text>Bureaucracy</Text></Row>
-		<Row Tag="LOC_ENI_EX_BUREAUCRACY_DESC"><Text>Business between states needs an address. Build a Minor Embassy.</Text></Row>
-		<Row Tag="LOC_ENI_EX_BUREAUCRACY_DONE"><Text>Your Minor Embassy hastens Bureaucracy — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_BUREAUCRACY_DESC"><Text>Build a Minor Embassy.</Text></Row>
+		<Row Tag="LOC_ENI_EX_BUREAUCRACY_DONE"><Text>Business between states needs an address — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_COLONIALISM_NAME"><Text>Colonialism</Text></Row>
-		<Row Tag="LOC_ENI_EX_COLONIALISM_DESC"><Text>One road carries a kingdom&apos;s goods. Have a Trade Route carrying 7 Resources.</Text></Row>
-		<Row Tag="LOC_ENI_EX_COLONIALISM_DONE"><Text>A Trade Route of 7 Resources hastens Colonialism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_COLONIALISM_DESC"><Text>Have a Trade Route carrying 7 Resources.</Text></Row>
+		<Row Tag="LOC_ENI_EX_COLONIALISM_DONE"><Text>One road carries a kingdom&apos;s goods — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_DIPLOMATIC_SERVICE_NAME"><Text>Diplomatic Service</Text></Row>
-		<Row Tag="LOC_ENI_EX_DIPLOMATIC_SERVICE_DESC"><Text>Friendship is written down and signed. Form 2 Alliances this Age.</Text></Row>
-		<Row Tag="LOC_ENI_EX_DIPLOMATIC_SERVICE_DONE"><Text>2 Alliances hasten Diplomatic Service — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_DIPLOMATIC_SERVICE_DESC"><Text>Form 2 Alliances this Age.</Text></Row>
+		<Row Tag="LOC_ENI_EX_DIPLOMATIC_SERVICE_DONE"><Text>Friendship written down and signed — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_SOCIETY_NAME"><Text>Society</Text></Row>
-		<Row Tag="LOC_ENI_EX_SOCIETY_DESC"><Text>Hands are moved from the field to the trade. Place 10 Specialists this Age.</Text></Row>
-		<Row Tag="LOC_ENI_EX_SOCIETY_DONE"><Text>10 Specialists hasten Society — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_SOCIETY_DESC"><Text>Place 10 Specialists this Age.</Text></Row>
+		<Row Tag="LOC_ENI_EX_SOCIETY_DONE"><Text>Hands moved from the field to the trade — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_IMPERIALISM_NAME"><Text>Imperialism</Text></Row>
-		<Row Tag="LOC_ENI_EX_IMPERIALISM_DESC"><Text>A rival throne is taken. Capture a Capital this Age.</Text></Row>
-		<Row Tag="LOC_ENI_EX_IMPERIALISM_DONE"><Text>A captured Capital hastens Imperialism — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_IMPERIALISM_DESC"><Text>Capture a Capital this Age.</Text></Row>
+		<Row Tag="LOC_ENI_EX_IMPERIALISM_DONE"><Text>A rival throne is taken — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_SOCIAL_CLASS_NAME"><Text>Social Class</Text></Row>
-		<Row Tag="LOC_ENI_EX_SOCIAL_CLASS_DESC"><Text>The common house is the heart of the town. Build Taverns in 4 settlements.</Text></Row>
-		<Row Tag="LOC_ENI_EX_SOCIAL_CLASS_DONE"><Text>Taverns in 4 settlements hasten Social Class — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_SOCIAL_CLASS_DESC"><Text>Build Taverns in 4 settlements.</Text></Row>
+		<Row Tag="LOC_ENI_EX_SOCIAL_CLASS_DONE"><Text>The common house is the heart of the town — a share of its research is already complete.</Text></Row>
 
 		<Row Tag="LOC_ENI_EX_SOVEREIGNTY_NAME"><Text>Sovereignty</Text></Row>
-		<Row Tag="LOC_ENI_EX_SOVEREIGNTY_DESC"><Text>One creed answers to one crown. Have 10 settlements following your Religion.</Text></Row>
-		<Row Tag="LOC_ENI_EX_SOVEREIGNTY_DONE"><Text>10 settlements of your faith hasten Sovereignty — a share of its research is already complete.</Text></Row>
+		<Row Tag="LOC_ENI_EX_SOVEREIGNTY_DESC"><Text>Have 10 settlements following your Religion.</Text></Row>
+		<Row Tag="LOC_ENI_EX_SOVEREIGNTY_DONE"><Text>One creed answers to one crown — a share of its research is already complete.</Text></Row>
 	</EnglishText>
 </Database>

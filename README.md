@@ -101,6 +101,31 @@ tracker is defined but never attached, or if a UI file does not parse as a modul
 failures is silent in-game — no error, no log line, the deed simply never fires — which is why they
 are checked mechanically rather than by eye.
 
+## Auditing a deed you have changed
+
+Three read-only audits ship alongside the generators. None of them fails a build; each prints
+something for a human to judge, and each covers a failure the others cannot see. If you fork this mod
+to add or re-cut deeds, these are the ones worth running.
+
+```
+python tools/audit-eni-text.py       # does each deed's TEXT match the requirement it actually checks?
+python tools/audit-eni-counters.py   # which counted deeds show the player no progress while part-done?
+python tools/audit-eni-carry.py      # which requirement types does each deed rest on?
+```
+
+`audit-eni-text.py` exists because a deed can describe one action and check another, and nothing else
+notices — the drift check compares mechanics to mechanics, and only verifies that text tags *exist*,
+never what they say. Its first run found three shipped deeds whose reward text was wrong: Armor
+announced an air kill for a deed about defeating a Commander, Urbanization mentioned a Breathtaking
+tile it never required, and Radicalism spoke of an opposing Ideology when the deed counts wars. A
+player who reads the wrong thing does the wrong thing, so this is a gameplay bug wearing a
+copy-editing costume.
+
+It prints each deed's text beside its real requirement and leaves the comparison to you. Two things
+in its output matter: `[ANY (or)]` versus `[ALL (and)]` tells you whether the listed requirements are
+alternatives or all required, and a deed shown with no requirement is not broken — six deeds are
+delivered by a narrative story and keep their condition in a polled set the audit cannot reach.
+
 ## Credits & license
 
 MIT. Original code and art; no Firaxis assets are redistributed.

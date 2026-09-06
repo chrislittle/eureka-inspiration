@@ -5,9 +5,12 @@
  * removed · the dock button is now the LIVE tracker ring — its blue/purple arcs mirror the
  * base dock's own tech and culture ring meters.
  */
-import { ENI_DEEDS, ENI_NODE_LABELS, ENI_MULTIPART, ENI_IDEOLOGIES, ENI_IDEOLOGY_NODES, eniChosenIdeology, eniPartDone, eniPartsDone, eniCurrentAge, eniBoostEarned, eniNodeState, eniLoc, eniInjectStyle, ENI_BULB_SVG, ENI_CREST_SVG } from 'fs://game/eureka-inspiration/ui/eni-core.js';
+import { ENI_DEEDS, eniNodeLabel, ENI_MULTIPART, ENI_IDEOLOGIES, ENI_IDEOLOGY_NODES, eniChosenIdeology, eniPartDone, eniPartsDone, eniCurrentAge, eniBoostEarned, eniNodeState, eniLoc, eniInjectStyle, ENI_BULB_SVG, ENI_CREST_SVG } from 'fs://game/eureka-inspiration/ui/eni-core.js';
 
-const NODE_LABELS = ENI_NODE_LABELS;
+/* ⚠ NAMES COME FROM THE GAME, NOT FROM US (2026-09-06). The dashboard used to print the mod's own
+   hardcoded ENGLISH table, so a French player read "Writing" where the game says "Écriture".
+   eniNodeLabel composes the node's own LOC key and falls back to that table only if the game
+   cannot answer. Same root cause as the missing tree overlay. */
 let hideCompleted = false;
 
 function cardHtml(nodeType, d) {
@@ -15,7 +18,7 @@ function cardHtml(nodeType, d) {
     const earned = eniBoostEarned(nodeType);
     if (st.completed && hideCompleted) return '';
     const civ = d.tree === 'civic';
-    const name = NODE_LABELS[nodeType] ?? nodeType;
+    const name = eniNodeLabel(nodeType);
     const deed = eniLoc(d.deed);
     const deedCls = earned ? (civ ? 'eni-dc' : 'eni-dt') : '';
     let prog;
@@ -170,7 +173,7 @@ function showNextPopup() {
         popupShowing = true;
         const { nodeType, d, spent } = popupQueue.shift();
         const civ = d.tree === 'civic';
-        const name = NODE_LABELS[nodeType] ?? nodeType;
+        const name = eniNodeLabel(nodeType);
         const doneKey = d.deed.replace(/_DESC$/, '_DONE');
         let doneText = eniLoc(doneKey);
         if (!doneText) doneText = eniLoc(d.deed);

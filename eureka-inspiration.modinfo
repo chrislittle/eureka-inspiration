@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Mod id="eureka-inspiration" version="3" xmlns="ModInfo">
+<Mod id="eureka-inspiration" version="4" xmlns="ModInfo">
 	<Properties>
 		<Name>Eureka &amp; Inspiration</Name>
 		<Description>Civ 6-style boosts for every base tech and civic. Each node has a thematic deed; completing it fires a Eureka! or Inspiration popup and pre-pays a share of the node's research (10-40%, set at game creation). All three Ages: Antiquity, Exploration and Modern.</Description>

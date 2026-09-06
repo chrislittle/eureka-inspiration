@@ -515,7 +515,11 @@ export function eniNodeState(nodeType) {
     return out;
 }
 
-// Display names (shared by dashboard + tooltip name-resolution).
+// ⚠ ENGLISH FALLBACK ONLY - never render these directly, call eniNodeLabel() instead (2026-09-06:
+// a French player reported the tree overlay missing entirely, and this table was half the cause -
+// see the localisation note above eniNodeLabel). Kept as a literal object because
+// tools/gen-eni-deed-list.py PARSES IT TEXTUALLY out of this file; do not convert it to a
+// generated map.
 export const ENI_NODE_LABELS = {
     NODE_TECH_AQ_WRITING: 'Writing', NODE_TECH_AQ_IRRIGATION: 'Irrigation', NODE_TECH_AQ_MASONRY: 'Masonry',
     NODE_TECH_AQ_CURRENCY: 'Currency', NODE_TECH_AQ_BRONZE_WORKING: 'Bronze Working',
@@ -578,9 +582,61 @@ export const ENI_NODE_LABELS = {
     NODE_CIVIC_MO_BRANCH_SOCIALISM: 'Socialism',
 };
 
-// UPPERCASED display name -> node, for tooltip header resolution.
-export const ENI_NAME2NODE = {};
-try { for (const [k, v] of Object.entries(ENI_NODE_LABELS)) ENI_NAME2NODE[v.toUpperCase()] = k; } catch (e) { /* dormant */ }
+/* ⛔⛔ THE GAME OWNS THE NODE'S NAME, WE DO NOT (Chris, 2026-09-06, confirmed in play in French).
+   A Steam player reported the tree overlay simply missing; it read as a mod conflict and was not.
+   The tooltip resolved its node by matching the header TEXT against the hardcoded ENGLISH table
+   above, so in French the header reads "ECRITURE", nothing matched, and patchTooltip returned before
+   drawing anything - silently, in every language but English, with the card badges still working
+   (those resolve by hash) which is what made it look selective.
+   ➡ The node row already carries a LOC key: `Name="LOC_CIVIC_MYSTICISM_NAME"` on ProgressionTreeNodes,
+   which is what the base game's own sub-system dock composes for the research readout. Ask the game.
+   ⚠ Memoised because this is called per dashboard row and per tooltip; Locale.compose is not free.
+   ⚠ Falls back to the English table and finally to the raw type - a label is cosmetic and must never
+   be the reason a row fails to render. */
+const labelCache = new Map();
+
+export function eniNodeLabel(nodeType) {
+    if (labelCache.has(nodeType)) return labelCache.get(nodeType);
+    let out = null;
+    try {
+        let info = null;
+        try { info = GameInfo?.ProgressionTreeNodes?.lookup?.(Database.makeHash(nodeType)) ?? null; }
+        catch (e) { info = null; }
+        /* Some GameInfo tables accept the type string as well as the hash; try both before giving up. */
+        if (!info) { try { info = GameInfo?.ProgressionTreeNodes?.lookup?.(nodeType) ?? null; } catch (e) { info = null; } }
+        if (info?.Name) {
+            const s = Locale.compose(info.Name);
+            /* compose returns the key unchanged when the string is missing - that is a miss, not a name. */
+            if (s && s !== info.Name) out = s;
+        }
+    } catch (e) { /* fall through to the English table */ }
+    out = out ?? ENI_NODE_LABELS[nodeType] ?? nodeType;
+    /* Only cache once the game can actually answer. Caching a fallback during load would freeze the
+       English name in for the session even after Locale came up. */
+    if (out !== nodeType) labelCache.set(nodeType, out);
+    return out;
+}
+
+/* UPPERCASED display name -> node. Now a LAZY, LOCALE-AWARE map: it holds the game's own localised
+   name for each node AND the English fallback, so text resolution works in every language and still
+   works if the game answers late. Built on first use, never at module load - GameInfo and Locale are
+   not reliably up when this module is imported. */
+let name2node = null;
+
+export function eniNodeFromName(text) {
+    if (!text) return null;
+    if (!name2node) {
+        name2node = new Map();
+        try {
+            for (const [k, v] of Object.entries(ENI_NODE_LABELS)) {
+                if (v) name2node.set(v.toUpperCase(), k);
+                try { const loc = eniNodeLabel(k); if (loc) name2node.set(loc.toUpperCase(), k); }
+                catch (e) { /* this node keeps the English key only */ }
+            }
+        } catch (e) { /* dormant - the hash path in the tooltip is the real resolver anyway */ }
+    }
+    return name2node.get(String(text).toUpperCase()) ?? null;
+}
 
 export function eniLoc(tag) {
     try { const s = Locale.compose(tag); if (s && s !== tag) return s; } catch (e) { /* fall back */ }

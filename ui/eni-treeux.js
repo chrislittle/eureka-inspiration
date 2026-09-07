@@ -82,6 +82,14 @@ function refreshCards() {
    mouseover on body covers the full trees and both research choosers, the same way the base UI
    itself decides what the tooltip is for. */
 let hoveredNode = null;
+/* ⛔⛔ MASTERY CARDS MUST SUPPRESS THE OVERLAY, NOT INHERIT IT (regression shipped in v6, caught by
+   Chris 2026-09-06: the "Writing II" tooltip drew Writing's Eureka box).
+   A Mastery-II card is a SEPARATE tree-card-v2 carrying the SAME `type` as its base node, so
+   resolving by attribute happily returns the base node and we decorate a tooltip that has no deed.
+   ⚠ THE OLD TEXT MATCHING HID THIS BY ACCIDENT — the header reads "WRITING II", which matched no
+   name in the table, so it silently drew nothing. Removing the text match removed an unrecognised
+   guard. refreshCards has always skipped these explicitly; the hover path must too. */
+let hoveredMastery = false;
 
 /* ⚠ document.body IS NOT GUARANTEED AT UISCRIPT LOAD - binding blind threw into a silent catch and
    left hover tracking dead for the session. Retry the same way watchTooltips does. */
@@ -101,19 +109,40 @@ function watchHover() {
                 if (chooser) raw = chooser.getAttribute('node-id');
                 else {
                     const card = t.closest(CARD_SEL);
-                    /* Mastery-II cards repeat their parent's node type; that is still the right
-                       ANSWER here (same node), so unlike refreshCards there is nothing to skip. */
-                    if (card) raw = card.getAttribute('type');
+                    if (card) {
+                        /* A mastery answers "no node", not "the base node" - and it must CLEAR the
+                           previous answer, or the tooltip would be decorated with whatever card was
+                           hovered before it.
+                           ⛔⛔ THE HOST WRAPS BOTH ROWS. A single `tree-card-v2` contains the base
+                           node AND its Mastery-II row (this file's own pill comment says so, and I
+                           ignored it twice). So:
+                             - testing the HOST's classes never sees the mastery -> the bug;
+                             - `card.querySelector('.tree-card--mastery')` sees it on EVERY card
+                               -> suppressed the whole overlay (Chris, 2026-09-06: "all boosts &
+                               eurekas are gone").
+                           The only correct question is about the POINTER, not the card: is the
+                           hovered element itself inside the mastery subtree? closest() answers that
+                           and includes the element itself. */
+                        if (t.closest('.tree-card--mastery')) {
+                            hoveredNode = null;
+                            hoveredMastery = true;
+                            return;
+                        }
+                        raw = card.getAttribute('type');
+                    }
                 }
                 if (!raw) return;
                 const key = resolveNode(raw);
-                if (key) hoveredNode = key;
+                if (key) { hoveredNode = key; hoveredMastery = false; }
             } catch (e) { /* keep the last known node */ }
         }, true);
     } catch (e) { /* no hover tracking - the text fallback still answers */ }
 }
 
 function nodeFromTooltip(tooltip) {
+    /* A mastery tooltip gets NOTHING - and must not fall through to the text scan either, or the
+       fallback would happily re-resolve the base node from some other leaf in the tooltip. */
+    if (hoveredMastery) return null;
     /* The hash answer first, and it is the one that works in every language. */
     if (hoveredNode) return hoveredNode;
     /* ⚠ FALLBACK ONLY. Now locale-aware (eniNodeFromName carries the game's own localised names),

@@ -630,6 +630,19 @@
 		<Argument name="FreeProgressionType">FREE_PROGRESSION_BOOST_SPECIFIC</Argument>
 		<Argument name="NodeType">NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
 	</Modifier>
+	<Modifier id="ENI_MO_BOOST_POLITICAL_THEORY_BABYLON" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_PROGRESSION" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_BABYLON_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="BoostPercentage">40</Argument>
+		<Argument name="SystemType">SYSTEM_CULTURE</Argument>
+		<Argument name="FreeProgressionType">FREE_PROGRESSION_BOOST_SPECIFIC</Argument>
+		<Argument name="NodeType">NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+	</Modifier>
 	<Modifier id="ENI_MO_BOOST_POLITICAL_THEORY_BULGARIA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_PROGRESSION" permanent="true" run-once="true">
 		<SubjectRequirements>
 			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
@@ -686,6 +699,32 @@
 		<SubjectRequirements>
 			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
 				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_EGYPT_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="BoostPercentage">40</Argument>
+		<Argument name="SystemType">SYSTEM_CULTURE</Argument>
+		<Argument name="FreeProgressionType">FREE_PROGRESSION_BOOST_SPECIFIC</Argument>
+		<Argument name="NodeType">NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_BOOST_POLITICAL_THEORY_ENGLAND" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_PROGRESSION" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_ENGLAND_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Amount">1</Argument>
+		<Argument name="BoostPercentage">40</Argument>
+		<Argument name="SystemType">SYSTEM_CULTURE</Argument>
+		<Argument name="FreeProgressionType">FREE_PROGRESSION_BOOST_SPECIFIC</Argument>
+		<Argument name="NodeType">NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_BOOST_POLITICAL_THEORY_GAUL" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_GRANT_PROGRESSION" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_GAUL_MODERNIZATION</Argument>
 				<Argument name="MinDepth">1</Argument>
 			</Requirement>
 		</SubjectRequirements>

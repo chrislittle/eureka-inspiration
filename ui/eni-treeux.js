@@ -90,6 +90,17 @@ let hoveredNode = null;
    name in the table, so it silently drew nothing. Removing the text match removed an unrecognised
    guard. refreshCards has always skipped these explicitly; the hover path must too. */
 let hoveredMastery = false;
+/* ⛔⛔ "I KNOW WHICH CARD, AND IT HAS NO DEED" IS AN ANSWER, AND IT HAS TO BE SAID OUT LOUD.
+   Without this the resolver had only two states - a node, or silence - and silence was
+   indistinguishable from "I did not look". So hovering a covered node and then an UNCOVERED one
+   left hoveredNode pointing at the previous card, and the tooltip decorated the wrong tech:
+   Pottery wore Irrigation's boost, Chiefdom wore Mysticism's inspiration (Chris, 2026-09-16).
+   ⚠ It is the SAME lesson the mastery guard below already states - "it must CLEAR the previous
+     answer, or the tooltip would be decorated with whatever card was hovered before it" - which was
+     applied to masteries and not to nodes we simply do not cover.
+   ⚠ It must also SUPPRESS THE TEXT FALLBACK. Once the card is identified, guessing from the
+     tooltip's words can only do harm: the answer is already known, and it is "nothing". */
+let hoveredUnknown = false;
 
 /* ⚠ document.body IS NOT GUARANTEED AT UISCRIPT LOAD - binding blind threw into a silent catch and
    left hover tracking dead for the session. Retry the same way watchTooltips does. */
@@ -131,9 +142,15 @@ function watchHover() {
                         raw = card.getAttribute('type');
                     }
                 }
+                /* No attribute at all = we genuinely could not identify the card, which is the one
+                   case where keeping the previous answer is right - the pointer may be between
+                   cards, or on chrome that belongs to the card we are already on. */
                 if (!raw) return;
                 const key = resolveNode(raw);
-                if (key) { hoveredNode = key; hoveredMastery = false; }
+                hoveredMastery = false;
+                if (key) { hoveredNode = key; hoveredUnknown = false; }
+                /* Identified, and E&I has no deed for it. Say so; do not leave the old answer up. */
+                else { hoveredNode = null; hoveredUnknown = true; }
             } catch (e) { /* keep the last known node */ }
         }, true);
     } catch (e) { /* no hover tracking - the text fallback still answers */ }
@@ -145,6 +162,8 @@ function nodeFromTooltip(tooltip) {
     if (hoveredMastery) return null;
     /* The hash answer first, and it is the one that works in every language. */
     if (hoveredNode) return hoveredNode;
+    /* Identified and uncovered - a known "nothing", so the text fallback must not guess. */
+    if (hoveredUnknown) return null;
     /* ⚠ FALLBACK ONLY. Now locale-aware (eniNodeFromName carries the game's own localised names),
        and it KEEPS SCANNING instead of giving up on the first short leaf - the old version returned
        on its first candidate whether or not it matched, so anything another mod inserted above the

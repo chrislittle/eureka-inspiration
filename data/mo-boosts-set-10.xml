@@ -46,11 +46,14 @@
 		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_ABBASID" Name="BoostPercentage"/><Set Value="10"/></Update>
 		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_AKSUM" Name="BoostPercentage"/><Set Value="10"/></Update>
 		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_ASSYRIA" Name="BoostPercentage"/><Set Value="10"/></Update>
+		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_BABYLON" Name="BoostPercentage"/><Set Value="10"/></Update>
 		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_BULGARIA" Name="BoostPercentage"/><Set Value="10"/></Update>
 		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_CARTHAGE" Name="BoostPercentage"/><Set Value="10"/></Update>
 		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_CHOLA" Name="BoostPercentage"/><Set Value="10"/></Update>
 		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_DAI_VIET" Name="BoostPercentage"/><Set Value="10"/></Update>
 		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_EGYPT" Name="BoostPercentage"/><Set Value="10"/></Update>
+		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_ENGLAND" Name="BoostPercentage"/><Set Value="10"/></Update>
+		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_GAUL" Name="BoostPercentage"/><Set Value="10"/></Update>
 		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_GORYEO" Name="BoostPercentage"/><Set Value="10"/></Update>
 		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_GREECE" Name="BoostPercentage"/><Set Value="10"/></Update>
 		<Update><Where ModifierId="ENI_MO_BOOST_POLITICAL_THEORY_HAN" Name="BoostPercentage"/><Set Value="10"/></Update>

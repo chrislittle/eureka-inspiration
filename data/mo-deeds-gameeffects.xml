@@ -660,6 +660,17 @@
 		<Argument name="Value">1</Argument>
 		<Argument name="Operation">CHANGE</Argument>
 	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_BABYLON" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_BABYLON_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
 	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_BULGARIA" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
 		<SubjectRequirements>
 			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
@@ -708,6 +719,28 @@
 		<SubjectRequirements>
 			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
 				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_EGYPT_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_ENGLAND" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_ENGLAND_MODERNIZATION</Argument>
+				<Argument name="MinDepth">1</Argument>
+			</Requirement>
+		</SubjectRequirements>
+		<Argument name="Key">ENI_BOOST_NODE_CIVIC_MO_MAIN_POLITICAL_THEORY</Argument>
+		<Argument name="Value">1</Argument>
+		<Argument name="Operation">CHANGE</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_MARK_POLITICAL_THEORY_GAUL" collection="COLLECTION_OWNER" effect="EFFECT_PLAYER_PROPERTY" permanent="true" run-once="true">
+		<SubjectRequirements>
+			<Requirement type="REQUIREMENT_PLAYER_HAS_COMPLETED_PROGRESSION_TREE_NODE">
+				<Argument name="ProgressionTreeNodeType">NODE_CIVIC_MO_GAUL_MODERNIZATION</Argument>
 				<Argument name="MinDepth">1</Argument>
 			</Requirement>
 		</SubjectRequirements>
@@ -1033,6 +1066,9 @@
 	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_ASSYRIA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
 		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_ASSYRIA, ENI_MO_BOOST_POLITICAL_THEORY_ASSYRIA</Argument>
 	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_BABYLON" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_BABYLON, ENI_MO_BOOST_POLITICAL_THEORY_BABYLON</Argument>
+	</Modifier>
 	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_BULGARIA" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
 		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_BULGARIA, ENI_MO_BOOST_POLITICAL_THEORY_BULGARIA</Argument>
 	</Modifier>
@@ -1047,6 +1083,12 @@
 	</Modifier>
 	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_EGYPT" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
 		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_EGYPT, ENI_MO_BOOST_POLITICAL_THEORY_EGYPT</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_ENGLAND" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_ENGLAND, ENI_MO_BOOST_POLITICAL_THEORY_ENGLAND</Argument>
+	</Modifier>
+	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_GAUL" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
+		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_GAUL, ENI_MO_BOOST_POLITICAL_THEORY_GAUL</Argument>
 	</Modifier>
 	<Modifier id="ENI_MO_ATTACH_POLITICAL_THEORY_GORYEO" collection="COLLECTION_MAJOR_PLAYERS" effect="EFFECT_ATTACH_MODIFIERS" permanent="true">
 		<Argument name="ModifierId">ENI_MO_MARK_POLITICAL_THEORY_GORYEO, ENI_MO_BOOST_POLITICAL_THEORY_GORYEO</Argument>

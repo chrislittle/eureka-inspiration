@@ -44,6 +44,29 @@ function nodeCompleted(attrType) {
     } catch (e) { return false; }
 }
 
+/* Is the research CHOOSER offering this node at its Mastery level?
+ *
+ * ⚠ ONLY TRUE IN THE CHOOSER. The chooser lists what you may research next, so a node with its
+ *   first depth already unlocked can only be on offer as its "II". In the TREE the same node still
+ *   draws its base card, so the same test there would suppress a boost that should show - which is
+ *   the v5 bug in the other direction. Do not reuse this outside the chooser branch.
+ *
+ * ⚠ TRIES BOTH ID SHAPES ON PURPOSE. `node-id` is written by tree-chooser-item.js as
+ *   `node.id.toString()`, and elsewhere in this file the same kind of value needs Number(). A
+ *   silent NaN would make this return false and leave the bug exactly as it was, which is the
+ *   worst outcome for a guard - so if the numeric lookup finds nothing, ask again with the raw
+ *   string before giving up.
+ */
+function chooserOffersMastery(raw) {
+    try {
+        const pid = GameContext.localPlayerID;
+        let n = null;
+        try { n = Game.ProgressionTrees.getNode(pid, Number(raw)); } catch (e) { /* try the string */ }
+        if (!n) { try { n = Game.ProgressionTrees.getNode(pid, raw); } catch (e) { /* unresolved */ } }
+        return !!n && ((n.depthUnlocked ?? 0) >= 1);
+    } catch (e) { return false; }
+}
+
 function refreshCards() {
     let cards;
     try { cards = document.querySelectorAll(CARD_SEL); } catch (e) { return; }
@@ -117,8 +140,29 @@ function watchHover() {
                    and risked matching unrelated elements inside the tooltip itself. */
                 let raw = null;
                 const chooser = t.closest('[node-id]');
-                if (chooser) raw = chooser.getAttribute('node-id');
-                else {
+                if (chooser) {
+                    raw = chooser.getAttribute('node-id');
+                    /* ⛔⛔ THE CHOOSER NEEDS ITS OWN MASTERY GUARD, AND HAD NONE. The tree branch
+                       below spots a mastery by the `.tree-card--mastery` class; that class exists
+                       only in the tree, so hovering "MASONRY II" in the AVAILABLE TECHNOLOGIES
+                       list fell straight through and drew Masonry's Eureka on it (Chris, v6 in
+                       play: "a boost shows on a masonry II which isn't right. its fine in the
+                       tree").
+
+                       ⚠ THE CHOOSER CANNOT ANSWER THIS FROM THE DOM. A mastery row is not a
+                       different node - tree-chooser-item.js writes `node-id` as the SAME node id
+                       for both, and the only difference is the name, which is localised and must
+                       never be parsed (the French overlay bug). So ask the game instead: the
+                       chooser lists what you may research NEXT, so a node that already has its
+                       first depth unlocked is by definition being offered at its mastery level.
+                       `depthUnlocked` is the game's own measure - tree-grid.js builds its
+                       `isCompleted`/`isCurrent` rows from exactly this value. */
+                    if (raw && chooserOffersMastery(raw)) {
+                        hoveredNode = null;
+                        hoveredMastery = true;
+                        return;
+                    }
+                } else {
                     const card = t.closest(CARD_SEL);
                     if (card) {
                         /* A mastery answers "no node", not "the base node" - and it must CLEAR the
